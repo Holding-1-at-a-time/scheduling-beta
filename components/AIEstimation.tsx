@@ -9,11 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { useToast } from '@/hooks/use-toast'
 
+
+interface AIEstimationProps {
+    vehicleDetails: VehicleDetailsType // Specific type
+    customizations: CustomizationsType // Specific type
+}
 interface AIEstimationProps {
     vehicleDetails: any // Replace with proper type
-    selectedServices: string[]
+    selectedServices: Array<ServiceType>
     customizations: any // Replace with proper type
 }
+
+    const calculateEstimate = useMutation(api.estimations.calculate, {
+	        onError: (error) => {
+	            console.error("Failed to calculate estimate:", error);
+	            useToast({
+	                title: "Error",
+	                description: "Failed to calculate estimate due to server error",
+	                variant: "destructive"
+	            });
+	        }
+	    })
 
 export function AIEstimation({ vehicleDetails, selectedServices, customizations }: AIEstimationProps) {
     const [estimationResult, setEstimationResult] = useState<{ estimatedTotal: number, detailedAnalysis: string } | null>(null)
@@ -37,6 +53,20 @@ export function AIEstimation({ vehicleDetails, selectedServices, customizations 
             })
         }
     }
+
+    const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
+const calculateEstimate = useMutation(api.estimations.calculate, {
+  onMutate: () => {
+    setIsLoading(true);
+    setError(null);
+  },
+  onSuccess: () => setIsLoading(false),
+  onError: (err) => {
+    setIsLoading(false);
+    setError('Failed to calculate estimate. Please try again.');
+  },
+});
 
     return (
         <Card>
