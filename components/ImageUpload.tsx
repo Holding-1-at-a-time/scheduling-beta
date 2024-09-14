@@ -25,23 +25,25 @@ export default function ImageUpload({ value, onChange, onRemove }: ImageUploadPr
         maxFiles: 5,
         onDrop: async (acceptedFiles) => {
             setIsUploading(true)
-            setError(null)
+            if (setError) {
+                setError(null)
+            }
             try {
                 const uploadedUrls = await Promise.all(
                     acceptedFiles.map(async (file) => {
-                        const storageId = await uploadFile(file)
-                        return await getURL(storageId)
+                        const storageId = await uploadFile(file);
+                        return await getURL();
                     })
-                )
-                onChange([...value, ...uploadedUrls])
+                );
+                onChange([...value, ...uploadedUrls]);
             } catch (error) {
-                console.error('Error uploading images:', error)
-                setError('Failed to upload images. Please try again.')
+                console.error('Error uploading images:', error);
+                setError('Failed to upload images. Please try again.');
             } finally {
-                setIsUploading(false)
+                setIsUploading(false);
             }
         }
-    })
+    });
 
     return (
         <div>
