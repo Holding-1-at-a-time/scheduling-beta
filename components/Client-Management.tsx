@@ -1,61 +1,68 @@
 // components/client-management.tsx
 'use client'
 
-import React, { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { toast } from '@/components/ui/use-toast';
-import { Spinner } from '@/components/ui/spinner';
-import { Client } from '@/types/client';
+import React, { useState } from 'react'
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { toast } from '@/components/ui/use-toast'
+import { Spinner } from '@/components/ui/spinner'
+import { useAuth } from '@clerk/nextjs'
+import { Client } from '@/types/client'
 
 export const ClientManagement: React.FC = () => {
-    const [page, setPage] = useState(1);
-    const [isAddingClient, setIsAddingClient] = useState(false);
-    const [newClient, setNewClient] = useState<Partial<Client>>({});
+    const [page, setPage] = useState(1)
+    const [isAddingClient, setIsAddingClient] = useState(false)
+    const [newClient, setNewClient] = useState<Partial<Client>>({})
+    const { userId } = useAuth()
 
-    const clients = useQuery(api.clients.list, { page, pageSize: 10 });
-    const addClient = useMutation(api.clients.add);
-    const updateClient = useMutation(api.clients.update);
-    const deleteClient = useMutation(api.clients.remove);
+    const clients = useQuery(api.clients.list, { tenantId: userId ?? '', page, pageSize: 10 })
+    const addClient = useMutation(api.clients.add)
+    const updateClient = useMutation(api.clients.update)
+    const deleteClient = useMutation(api.clients.remove)
 
     const handleAddClient = async () => {
         try {
-            await addClient(newClient);
-            setIsAddingClient(false);
-            setNewClient({});
-            toast({ title: "Success", description: "Client added successfully" });
+            if (!userId) throw new Error('User not authenticated')
+            await addClient({ tenantId: userId, ...newClient as Required<Client> })
+            setIsAddingClient(false)
+            setNewClient({})
+            toast({ title: 'Success', description: 'Client added successfully' })
         } catch (error) {
-            console.error("Error adding client:", error);
-            toast({ title: "Error", description: "Failed to add client", variant: "destructive" });
+            console.error('Error adding client:', error)
+            toast({ title: 'Error', description: 'Failed to add client', variant: 'destructive' })
         }
-    };
+    }
 
-    const handleUpdateClient = async (id: string, updatedData: Partial<Client>) => {
+    const handleUpdateClient = async (id: Id<'clients'>, updatedData: Partial<Client>) => {
         try {
-            await updateClient({ id, ...updatedData });
-            toast({ title: "Success", description: "Client updated successfully" });
+            await updateClient({ id, ...updatedData })
+            toast({ title: 'Success', description: 'Client updated successfully' })
         } catch (error) {
-            console.error("Error updating client:", error);
-            toast({ title: "Error", description: "Failed to update client", variant: "destructive" });
+            console.error('Error updating client:', error)
+            toast({ title: 'Error', description: 'Failed to update client', variant: 'destructive' })
         }
-    };
+    }
 
-    const handleDeleteClient = async (id: string) => {
+    const handleDeleteClient = async (id: Id<'clients'>) => {
         try {
-            await deleteClient({ id });
-            toast({ title: "Success", description: "Client deleted successfully" });
+            await deleteClient({ id })
+            toast({ title: 'Success', description: 'Client deleted successfully' })
         } catch (error) {
-            console.error("Error deleting client:", error);
-            toast({ title: "Error", description: "Failed to delete client", variant: "destructive" });
+            console.error('Error deleting client:', error)
+            toast({ title: 'Error', description: 'Failed to delete client', variant: 'destructive' })
         }
-    };
+    }
 
-    if (!clients) {
-        return <Spinner />;
+    if (!userId) {
+        return <div>Please log in to manage clients.</div>
+    }
+
+    if (clients === undefined) {
+        return <Spinner />
     }
 
     return (
@@ -72,7 +79,7 @@ export const ClientManagement: React.FC = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {clients.map((Client) => (
+                    {clients.map((client) => (
                         <TableRow key={client._id}>
                             <TableCell>{client.name}</TableCell>
                             <TableCell>{client.email}</TableCell>
@@ -117,5 +124,5 @@ export const ClientManagement: React.FC = () => {
                 </DialogContent>
             </Dialog>
         </div>
-    );
-};
+    )
+}

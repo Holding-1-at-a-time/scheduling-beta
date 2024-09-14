@@ -1,8 +1,7 @@
 // components/quote-form.tsx
 'use client'
 
-import ImageUpload from '@/components/ui/ImageUpload'
-import QuoteEstimate from '@/components/ui/QuoteEstimate'
+
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -12,6 +11,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import ImageUpload from './ImageUpload'
+import QuoteEstimate from './QuoteEstimate'
 
 const formSchema = z.object({
     vehicleType: z.string().min(1, 'Vehicle type is required'),
@@ -21,7 +22,7 @@ const formSchema = z.object({
 
 export default function QuoteForm() {
     const [isLoading, setIsLoading] = useState(false)
-    const [quoteEstimate, setQuoteEstimate] = useState<number | null>(null)
+    const [quoteEstimate, setQuoteEstimate] = useState<number | null>(null),
     const router = useRouter()
 
     const form = useForm<z.infer<typeof formSchema>>({
