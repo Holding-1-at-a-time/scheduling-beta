@@ -1,32 +1,39 @@
 // components/appointment-history.tsx
-'use client'
+import React, { useState } from 'react';
+import { useQuery, usePaginatedQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
-import { useState } from 'react'
-import { useQuery } from 'convex/react'
-import { api } from '@/convex/_generated/api'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
+interface Appointment {
+    _id: string;
+    date: number;
+    status: string;
+    details: string;
+}
 
 export function AppointmentHistory() {
-    const [page, setPage] = useState(1)
-    const pageSize = 10
-    const appointments = useQuery(api.appointments.list, { page, pageSize })
+    const [page, setPage] = useState<number>(0);
+    const pageSize = 10;
+
+    const { results: appointments, status, loadMore } = usePaginatedQuery(
+        api.appointments.list,
+        { page, pageSize },
+        { initialNumItems: pageSize }
+    );
 
     const handleNextPage = () => {
-        setPage(prevPage => prevPage + 1)
-    }
+        loadMore(pageSize);
+        setPage(prevPage => prevPage + 1);
+    };
 
     const handlePreviousPage = () => {
-        setPage(prevPage => Math.max(prevPage - 1, 1))
-    }
+        setPage(prevPage => Math.max(prevPage - 1, 0));
+    };
 
-    if (appointments === undefined) {
-        return <Spinner />
-    }
-
-    if (appointments === null) {
-        return <div>Error loading appointments. Please try again.</div>
+    if (status === "loading") {
+        return <Spinner />;
     }
 
     return (
@@ -35,19 +42,24 @@ export function AppointmentHistory() {
                 <CardTitle>Appointment History</CardTitle>
             </CardHeader>
             <CardContent>
-                <ul className="space-y-4">
-                    {appointments.map(appointment => (
-                        <li key={appointment._id} className="border-b pb-2">
-                            <div className="font-semibold">{new Date(appointment.date).toLocaleString()}</div>
-                            <div>{appointment.details}</div>
-                        </li>
-                    ))}
-                </ul>
+                {appointments.length === 0 ? (
+                    <p>No appointments found.</p>
+                ) : (
+                    <ul className="space-y-4">
+                        {appointments.map((appointment: Appointment) => (
+                            <li key={appointment._id} className="border-b pb-2">
+                                <div className="font-semibold">{new Date(appointment.date).toLocaleString()}</div>
+                                <div>Status: {appointment.status}</div>
+                                <div>{appointment.details}</div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
                 <div className="flex justify-between mt-4">
-                    <Button onClick={handlePreviousPage} disabled={page === 1}>Previous</Button>
-                    <Button onClick={handleNextPage} disabled={appointments.length < pageSize}>Next</Button>
+                    <Button onClick={handlePreviousPage} disabled={page === 0}>Previous</Button>
+                    <Button onClick={handleNextPage} disabled={status !== "CanLoadMore"}>Next</Button>
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }
