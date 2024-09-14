@@ -1,9 +1,9 @@
 // components/admin-sidebar.tsx
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { cn } from "@/lib/utils";
 import { HomeIcon, UsersIcon, SettingsIcon, ToolIcon, BarChartIcon, MessageSquareIcon } from 'lucide-react';
 
@@ -18,11 +18,20 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const user = useQuery(api.users.getCurrentUser);
+
+  if (!user) {
+    return null; // or a loading state
+  }
 
   return (
     <div className="bg-white w-64 h-screen flex flex-col">
       <div className="flex items-center justify-center h-20 shadow-md">
         <h1 className="text-3xl uppercase text-indigo-500">Slick Solutions</h1>
+      </div>
+      <div className="px-4 py-2 border-b">
+        <p className="text-sm text-gray-600">Logged in as: {user.name}</p>
+        <p className="text-xs text-gray-500">Role: {user.role}</p>
       </div>
       <ul className="flex flex-col py-4">
         {navItems.map((item) => {
