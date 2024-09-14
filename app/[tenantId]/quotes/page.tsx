@@ -1,5 +1,6 @@
 // app/quote/page.tsx
-import QuoteForm from '@/components/quote-form'
+
+import QuoteForm from "@/components/Quote-Form";
 
 export default function QuotePage() {
   return (

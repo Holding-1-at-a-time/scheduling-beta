@@ -1,14 +1,17 @@
 // components/performance-metrics.tsx
 'use client'
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend, PointElement } from 'chart.js';
+import { useUser } from '@clerk/nextjs';
+import { Spinner } from '@/components/ui/spinner';
+import { toast } from '@/components/ui/use-toast';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 
 interface AppointmentDuration {
     date: string;
@@ -26,15 +29,35 @@ interface StaffProductivity {
 }
 
 export function PerformanceMetrics() {
-    const appointmentDurations = useQuery(api.metrics.getAppointmentDurations);
-    const customerSatisfaction = useQuery(api.metrics.getCustomerSatisfaction);
-    const staffProductivity = useQuery(api.metrics.getStaffProductivity);
+    const { user } = useUser();
+    const tenantId = user?.id;
 
-    if (appointmentDurations === undefined || customerSatisfaction === undefined || staffProductivity === undefined) {
-        return <div>Loading performance metrics...</div>;
+    const appointmentDurations = useQuery(api.metrics.getAppointmentDurations, tenantId ? { tenantId } : 'skip');
+    const customerSatisfaction = useQuery(api.metrics.getCustomerSatisfaction, tenantId ? { tenantId } : 'skip');
+    const staffProductivity = useQuery(api.metrics.getStaffProductivity, tenantId ? { tenantId } : 'skip');
+
+    const isLoading = appointmentDurations === undefined || customerSatisfaction === undefined || staffProductivity === undefined;
+    const hasError = appointmentDurations === null || customerSatisfaction === null || staffProductivity === null;
+
+    useMemo(() => {
+        if (hasError) {
+            toast({
+                title: "Error loading metrics",
+                description: "Please try again later or contact support if the problem persists.",
+                variant: "destructive",
+            });
+        }
+    }, [hasError]);
+
+    if (!tenantId) {
+        return <div>Please sign in to view performance metrics.</div>;
     }
 
-    if (appointmentDurations === null || customerSatisfaction === null || staffProductivity === null) {
+    if (isLoading) {
+        return <Spinner />;
+    }
+
+    if (hasError) {
         return <div>Error loading performance metrics. Please try again.</div>;
     }
 
@@ -60,6 +83,7 @@ export function PerformanceMetrics() {
                 backgroundColor: 'rgba(255, 206, 86, 0.2)',
                 borderColor: 'rgb(255, 206, 86)',
                 borderWidth: 1,
+                tension: 0.1,
             },
         ],
     };
@@ -83,6 +107,15 @@ export function PerformanceMetrics() {
             legend: {
                 position: 'top' as const,
             },
+            tooltip: {
+                mode: 'index' as const,
+                intersect: false,
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
         },
     };
 
@@ -101,7 +134,7 @@ export function PerformanceMetrics() {
                     <CardTitle>Customer Satisfaction</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Bar options={options} data={customerSatisfactionData} />
+                    <Line options={options} data={customerSatisfactionData} />
                 </CardContent>
             </Card>
             <Card>

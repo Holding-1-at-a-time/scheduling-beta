@@ -125,3 +125,80 @@ export const updateService = mutation({
         await ctx.db.patch(serviceId, updates);
     },
 });
+
+export const list = query({
+    handler: async (ctx) => {
+        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
+        if (!tenantId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        return await ctx.db
+            .query("services")
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+            .collect();
+    },
+});
+
+export const add = mutation({
+    args: {
+        name: v.string(),
+        description: v.string(),
+        price: v.number(),
+        duration: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
+        if (!tenantId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        return await ctx.db.insert("services", {
+            tenantId,
+            ...args,
+        });
+    },
+});
+
+export const update = mutation({
+    args: {
+        id: v.id("services"),
+        name: v.string(),
+        description: v.string(),
+        price: v.number(),
+        duration: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
+        if (!tenantId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const { id, ...updateData } = args;
+        const existingService = await ctx.db.get(id);
+
+        if (!existingService || existingService.tenantId !== tenantId) {
+            throw new ConvexError("Service not found or unauthorized");
+        }
+
+        return await ctx.db.patch(id, updateData);
+    },
+});
+
+export const remove = mutation({
+    args: { id: v.id("services") },
+    handler: async (ctx, args) => {
+        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
+        if (!tenantId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const existingService = await ctx.db.get(args.id);
+
+        if (!existingService || existingService.tenantId !== tenantId) {
+            throw new ConvexError("Service not found or unauthorized");
+        }
+
+        await ctx.db.delete(args.id);
+    },
+});

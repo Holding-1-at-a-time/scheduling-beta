@@ -12,6 +12,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
+import { Spinner } from '@/components/ui/spinner'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Trash2, Edit } from 'lucide-react'
 
 const serviceSchema = z.object({
     name: z.string().min(1, 'Service name is required'),
@@ -19,6 +22,13 @@ const serviceSchema = z.object({
     price: z.number().min(0, 'Price must be a positive number'),
     duration: z.number().min(1, 'Duration must be at least 1 minute'),
 })
+
+type ServiceFormData = z.infer<typeof serviceSchema>
+
+interface Service extends ServiceFormData {
+    _id: string;
+    tenantId: string;
+}
 
 export default function ServiceForm() {
     const { toast } = useToast()
@@ -29,7 +39,7 @@ export default function ServiceForm() {
 
     const [editingService, setEditingService] = useState<string | null>(null)
 
-    const form = useForm<z.infer<typeof serviceSchema>>({
+    const form = useForm<ServiceFormData>({
         resolver: zodResolver(serviceSchema),
         defaultValues: {
             name: '',
@@ -39,7 +49,7 @@ export default function ServiceForm() {
         },
     })
 
-    const onSubmit = async (data: z.infer<typeof serviceSchema>) => {
+    const onSubmit = async (data: ServiceFormData) => {
         try {
             if (editingService) {
                 await updateService({ id: editingService, ...data })
@@ -66,9 +76,9 @@ export default function ServiceForm() {
         }
     }
 
-    const handleEdit = (service: any) => {
+    const handleEdit = (service: Service) => {
         form.reset(service)
-        setEditingService(service.id)
+        setEditingService(service._id)
     }
 
     const handleDelete = async (id: string) => {
@@ -88,88 +98,109 @@ export default function ServiceForm() {
         }
     }
 
-    if (!services) {
-        return <div>Loading...</div>
+    if (services === undefined) {
+        return <Spinner className="m-4" />
     }
 
     return (
         <div className="space-y-8">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Service Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Description</FormLabel>
-                                <FormControl>
-                                    <Textarea {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Price ($)</FormLabel>
-                                <FormControl>
-                                    <Input {...field} type="number" step="0.01" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="duration"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Duration (minutes)</FormLabel>
-                                <FormControl>
-                                    <Input {...field} type="number" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <Button type="submit">{editingService ? 'Update Service' : 'Add Service'}</Button>
-                </form>
-            </Form>
+            <Card>
+                <CardHeader>
+                    <CardTitle>{editingService ? 'Edit Service' : 'Add New Service'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Service Name</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Textarea {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Price ($)</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} type="number" step="0.01" onChange={e => field.onChange(parseFloat(e.target.value))} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="duration"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Duration (minutes)</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} type="number" onChange={e => field.onChange(parseInt(e.target.value))} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit">{editingService ? 'Update Service' : 'Add Service'}</Button>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
 
-            <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4">Your Services</h2>
-                <ul className="space-y-4">
-                    {services.map((service) => (
-                        <li key={service.id} className="flex items-center justify-between p-4 bg-white shadow rounded-lg">
-                            <div>
-                                <h3 className="font-semibold">{service.name}</h3>
-                                <p className="text-sm text-gray-600">{service.description}</p>
-                                <p className="text-sm">${service.price.toFixed(2)} - {service.duration} minutes</p>
-                            </div>
-                            <div>
-                                <Button variant="outline" className="mr-2" onClick={() => handleEdit(service)}>Edit</Button>
-                                <Button variant="destructive" onClick={() => handleDelete(service.id)}>Delete</Button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Your Services</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {services.length === 0 ? (
+                        <p>No services added yet. Add your first service above.</p>
+                    ) : (
+                        <ul className="space-y-4">
+                            {services.map((service) => (
+                                <li key={service._id} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg">
+                                    <div>
+                                        <h3 className="font-semibold">{service.name}</h3>
+                                        <p className="text-sm text-gray-600">{service.description}</p>
+                                        <p className="text-sm">${service.price.toFixed(2)} - {service.duration} minutes</p>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <Button variant="outline" size="sm" onClick={() => handleEdit(service)}>
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            Edit
+                                        </Button>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(service._id)}>
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     )
 }

@@ -12,13 +12,21 @@ import { IntegrationsConfig } from '@/components/settings/integrations-config';
 import { AdvancedSettings } from '@/components/settings/advanced-settings';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { LoadingSpinner } from '@/components/loading-spinner';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 export function Settings() {
   const params = useParams();
   const tenantId = params.tenantsId as string;
 
+  const tenant = useQuery(api.tenants.getTenantById, { tenantId });
+
   if (!tenantId) {
     return <div>Error: Tenant ID not found</div>;
+  }
+
+  if (!tenant) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -26,7 +34,7 @@ export function Settings() {
       <Card className="max-w-6xl mx-auto bg-white/10 backdrop-blur-md shadow-2xl shadow-primary/50 rounded-2xl overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-3xl font-bold text-white">Settings</CardTitle>
+            <CardTitle className="text-3xl font-bold text-white">{tenant.name} Settings</CardTitle>
             <CardDescription className="text-lg text-white/80">Customize your account preferences</CardDescription>
           </div>
           <Button variant="ghost" className="text-white hover:bg-white/10 transition-colors">

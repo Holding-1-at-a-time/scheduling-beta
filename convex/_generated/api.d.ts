@@ -15,7 +15,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as analyrics from "../analyrics.js";
+import type * as analyrics from "../analytics.js";
 import type * as profile from "../profile.js";
 import type * as services from "../services.js";
 

@@ -187,3 +187,64 @@ export const getDetailedAnalytics = query({
         };
     },
 });
+
+
+export const getRevenueData = query({
+    args: {
+        startDate: v.string(),
+        endDate: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
+        if (!tenantId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const revenue = await ctx.db
+            .query("transactions")
+            .withIndex("by_tenantId_and_date", (q) =>
+                q
+                    .eq("tenantId", tenantId)
+                    .gte("date", args.startDate)
+                    .lte("date", args.endDate)
+            )
+            .collect();
+
+        const aggregatedRevenue = revenue.reduce((acc, transaction) => {
+            const date = transaction.date.split('T')[0];
+            acc[date] = (acc[date] || 0) + transaction.amount;
+            return acc;
+        }, {} as Record<string, number>);
+
+        return Object.entries(aggregatedRevenue).map(([date, revenue]) => ({
+            date,
+            revenue,
+        }));
+    },
+});
+
+export const getServiceBreakdown = query({
+    handler: async (ctx) => {
+        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
+        if (!tenantId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const services = await ctx.db
+            .query("services")
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+            .collect();
+
+        const serviceUsage = await ctx.db
+            .query("appointments")
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
+            .collect();
+
+        const serviceBreakdown = services.map((service) => ({
+            name: service.name,
+            value: serviceUsage.filter((usage) => usage.serviceId === service._id).length,
+        }));
+
+        return serviceBreakdown;
+    },
+});
