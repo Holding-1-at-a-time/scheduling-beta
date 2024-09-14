@@ -1,41 +1,54 @@
 // components/business-insights.tsx
 'use client'
 
-import React from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Line, Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import React from 'react'
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Line, Bar } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js'
+import { useAuth } from '@clerk/nextjs'
+import { Spinner } from '@/components/ui/spinner'
+import { toast } from '@/components/ui/use-toast'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
 interface ServicePopularity {
-    serviceName: string;
-    count: number;
+    serviceName: string
+    count: number
 }
 
 interface RevenueData {
-    date: string;
-    revenue: number;
+    date: string
+    revenue: number
 }
 
 interface CustomerRetention {
-    date: string;
-    retentionRate: number;
+    date: string
+    retentionRate: number
 }
 
 export function BusinessInsights() {
-    const servicePopularity = useQuery(api.insights.getServicePopularity);
-    const revenueData = useQuery(api.insights.getRevenueData);
-    const customerRetention = useQuery(api.insights.getCustomerRetention);
+    const { userId } = useAuth()
+    const servicePopularity = useQuery(api.insights.getServicePopularity, { tenantId: userId ?? '' })
+    const revenueData = useQuery(api.insights.getRevenueData, { tenantId: userId ?? '' })
+    const customerRetention = useQuery(api.insights.getCustomerRetention, { tenantId: userId ?? '' })
+
+    if (!userId) {
+        return <div>Please log in to view business insights.</div>
+    }
 
     if (servicePopularity === undefined || revenueData === undefined || customerRetention === undefined) {
-        return <div>Loading business insights...</div>;
+        return <Spinner />
     }
 
     if (servicePopularity === null || revenueData === null || customerRetention === null) {
-        return <div>Error loading business insights. Please try again.</div>;
+        toast({
+            title: 'Error',
+            description: 'Failed to load business insights. Please try again.',
+            variant: 'destructive',
+        })
+        return null
     }
 
     const servicePopularityData = {
@@ -49,7 +62,7 @@ export function BusinessInsights() {
                 borderWidth: 1,
             },
         ],
-    };
+    }
 
     const revenueChartData = {
         labels: revenueData.map((item: RevenueData) => item.date),
@@ -62,7 +75,7 @@ export function BusinessInsights() {
                 borderColor: 'rgba(54, 162, 235, 0.2)',
             },
         ],
-    };
+    }
 
     const customerRetentionData = {
         labels: customerRetention.map((item: CustomerRetention) => item.date),
@@ -75,7 +88,7 @@ export function BusinessInsights() {
                 borderWidth: 1,
             },
         ],
-    };
+    }
 
     const options = {
         responsive: true,
@@ -84,7 +97,7 @@ export function BusinessInsights() {
                 position: 'top' as const,
             },
         },
-    };
+    }
 
     return (
         <div className="space-y-6">
@@ -113,5 +126,5 @@ export function BusinessInsights() {
                 </CardContent>
             </Card>
         </div>
-    );
+    )
 }
