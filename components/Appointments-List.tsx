@@ -1,89 +1,100 @@
 // components/appointment-list.tsx
-'use client'
-
-import { useState } from 'react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { updateAppointmentStatus } from '@/lib/appointments'
-import { useToast } from '@/components/ui/use-toast'
+import React, { useState } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 
 interface Appointment {
-    id: string
-    date: Date
-    clientName: string
-    status: 'scheduled' | 'completed' | 'no-show'
-    isPaid: boolean
+    id: string;
+    date: number;
+    customerId: string;
+    status: 'scheduled' | 'completed' | 'no-show';
+    isPaid: boolean;
 }
 
-interface AppointmentListProps {
-    appointments: Appointment[]
-}
+export function AppointmentList() {
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
+    const { toast } = useToast();
 
-export default function AppointmentList({ appointments }: AppointmentListProps) {
-    const [updatingId, setUpdatingId] = useState<string | null>(null)
-    const { toast } = useToast()
+    const appointmentsQuery = useQuery(api.appointments.listPaginated, { page, pageSize });
+    const updateAppointmentStatus = useMutation(api.appointments.updateStatus);
 
     const handleStatusUpdate = async (id: string, newStatus: 'completed' | 'no-show') => {
-        setUpdatingId(id)
         try {
-            await updateAppointmentStatus(id, newStatus)
+            await updateAppointmentStatus({ id, status: newStatus });
             toast({
                 title: "Status Updated",
                 description: `Appointment status has been updated to ${newStatus}`,
-            })
+            });
         } catch (error) {
-            console.error('Error updating appointment status:', error)
+            console.error('Error updating appointment status:', error);
             toast({
                 title: "Update Failed",
                 description: "There was an error updating the appointment status. Please try again.",
                 variant: "destructive",
-            })
-        } finally {
-            setUpdatingId(null)
+            });
         }
+    };
+
+    if (appointmentsQuery === undefined) {
+        return <Spinner />;
     }
 
+    const { appointments, hasMore } = appointmentsQuery;
+
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Payment</TableHead>
-                    <TableHead>Actions</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {appointments.map((appointment) => (
-                    <TableRow key={appointment.id}>
-                        <TableCell>{appointment.date.toLocaleString()}</TableCell>
-                        <TableCell>{appointment.clientName}</TableCell>
-                        <TableCell>{appointment.status}</TableCell>
-                        <TableCell>{appointment.isPaid ? 'Paid' : 'Unpaid'}</TableCell>
-                        <TableCell>
-                            {appointment.status === 'scheduled' && (
-                                <>
-                                    <Button
-                                        onClick={() => handleStatusUpdate(appointment.id, 'completed')}
-                                        disabled={updatingId === appointment.id}
-                                        className="mr-2"
-                                    >
-                                        Mark Completed
-                                    </Button>
-                                    <Button
-                                        onClick={() => handleStatusUpdate(appointment.id, 'no-show')}
-                                        disabled={updatingId === appointment.id}
-                                        variant="destructive"
-                                    >
-                                        Mark No-Show
-                                    </Button>
-                                </>
-                            )}
-                        </TableCell>
+        <div>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Payment</TableHead>
+                        <TableHead>Actions</TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
-    )
+                </TableHeader>
+                <TableBody>
+                    {appointments.map((appointment: Appointment) => (
+                        <TableRow key={appointment.id}>
+                            <TableCell>{new Date(appointment.date).toLocaleString()}</TableCell>
+                            <TableCell>{appointment.customerId}</TableCell>
+                            <TableCell>{appointment.status}</TableCell>
+                            <TableCell>{appointment.isPaid ? 'Paid' : 'Unpaid'}</TableCell>
+                            <TableCell>
+                                {appointment.status === 'scheduled' && (
+                                    <>
+                                        <Button
+                                            onClick={() => handleStatusUpdate(appointment.id, 'completed')}
+                                            className="mr-2"
+                                        >
+                                            Mark Completed
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleStatusUpdate(appointment.id, 'no-show')}
+                                            variant="destructive"
+                                        >
+                                            Mark No-Show
+                                        </Button>
+                                    </>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+            <div className="mt-4 flex justify-between">
+                <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                    Previous
+                </Button>
+                <Button onClick={() => setPage(p => p + 1)} disabled={!hasMore}>
+                    Next
+                </Button>
+            </div>
+        </div>
+    );
 }
