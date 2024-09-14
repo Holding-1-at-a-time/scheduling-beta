@@ -71,3 +71,57 @@ export const remove = mutation({
         await ctx.db.delete(args.id)
     },
 })
+
+
+export const listServices = query({
+    args: {},
+    handler: async (ctx) => {
+        const tenantId = await getTenantId(ctx);
+        const services = await ctx.db
+            .query("services")
+            .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+            .collect();
+        return services.map(service => ({
+            id: service._id,
+            name: service.name,
+            price: service.price,
+            duration: service.duration,
+        }));
+    },
+});
+
+export const addService = mutation({
+    args: {
+        name: v.string(),
+        price: v.number(),
+        duration: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const tenantId = await getTenantId(ctx);
+        const serviceId = await ctx.db.insert("services", {
+            tenantId,
+            name: args.name,
+            price: args.price,
+            duration: args.duration,
+        });
+        return serviceId;
+    },
+});
+
+export const updateService = mutation({
+    args: {
+        serviceId: v.id("services"),
+        name: v.optional(v.string()),
+        price: v.optional(v.number()),
+        duration: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const tenantId = await getTenantId(ctx);
+        const { serviceId, ...updates } = args;
+        const service = await ctx.db.get(serviceId);
+        if (!service || service.tenantId !== tenantId) {
+            throw new Error("Service not found or not in your organization");
+        }
+        await ctx.db.patch(serviceId, updates);
+    },
+});

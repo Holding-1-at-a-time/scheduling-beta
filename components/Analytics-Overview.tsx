@@ -1,17 +1,19 @@
 // components/analytics-overview.tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DollarSign, Users, Calendar, AlertTriangle } from 'lucide-react'
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DollarSign, Users, Calendar, AlertTriangle } from 'lucide-react';
+import { formatCurrency } from './utils/format-currency';
 
 interface AnalyticsOverviewProps {
     metrics: {
-        totalRevenue: number
-        completedServices: number
-        noShowRate: number
-        averageRating: number
-    }
+        totalRevenue: number;
+        completedServices: number;
+        noShowRate: number;
+        averageRating: number;
+    };
 }
 
-export default function AnalyticsOverview({ metrics }: AnalyticsOverviewProps) {
+const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ metrics }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
@@ -20,7 +22,7 @@ export default function AnalyticsOverview({ metrics }: AnalyticsOverviewProps) {
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">${metrics.totalRevenue.toFixed(2)}</div>
+                    <div className="text-2xl font-bold">{formatCurrency(metrics.totalRevenue)}</div>
                 </CardContent>
             </Card>
             <Card>
@@ -51,5 +53,7 @@ export default function AnalyticsOverview({ metrics }: AnalyticsOverviewProps) {
                 </CardContent>
             </Card>
         </div>
-    )
-}
+    );
+};
+
+export default AnalyticsOverview;
