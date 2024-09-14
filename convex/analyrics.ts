@@ -110,3 +110,80 @@ export const getServiceBreakdown = query({
             .map(([name, value]) => ({ name, value }))
     },
 })
+
+import { Query } from "convex/server";
+
+export const getMetrics = Query(async ({ db }) => {
+    try {
+        const totalRevenue = await db.query("services").sum("revenue") ?? 0;
+        const completedServices = await db.query("services").filter({ status: "completed" }).count();
+        const totalAppointments = await db.query("appointments").count();
+        const noShowAppointments = await db.query("appointments").filter({ status: "no-show" }).count();
+        const noShowRate = totalAppointments > 0 ? noShowAppointments / totalAppointments : 0;
+        const averageRating = await db.query("ratings").avg("score") ?? 0;
+
+        return {
+            totalRevenue,
+            completedServices,
+            noShowRate,
+            averageRating,
+        };
+    } catch (error) {
+        console.error("Error fetching metrics:", error);
+        throw new Error("Failed to fetch analytics metrics.");
+    }
+});
+
+// convex/analytics.ts
+
+export const getAnalyticsData = query({
+    args: {},
+    handler: async (ctx) => {
+        const tenantId = await getTenantId(ctx);
+
+        const analyticsData = await ctx.db
+            .query("analytics")
+            .withIndex("by_tenant_and_date", (q) => q.eq("tenantId", tenantId))
+            .order("desc")
+            .take(30);
+
+        return analyticsData.map((data) => ({
+            date: new Date(data.date).toISOString().split('T')[0],
+            revenue: data.revenue,
+        }));
+    },
+});
+
+
+
+export const getDetailedAnalytics = query({
+    args: {},
+    handler: async (ctx) => {
+        const tenantId = await getTenantId(ctx);
+
+        const analyticsData = await ctx.db
+            .query("analytics")
+            .withIndex("by_tenant_and_date", (q) => q.eq("tenantId", tenantId))
+            .order("desc")
+            .take(30);
+
+        const totalRevenue = analyticsData.reduce((sum, data) => sum + data.revenue, 0);
+        const completedServices = analyticsData.reduce((sum, data) => sum + data.completedServices, 0);
+        const totalNoShows = analyticsData.reduce((sum, data) => sum + data.noShows, 0);
+        const allRatings = analyticsData.flatMap(data => data.ratings);
+
+        return {
+            totalRevenue,
+            completedServices,
+            noShowRate: totalNoShows / (completedServices + totalNoShows),
+            averageRating: allRatings.length > 0 ? allRatings.reduce((sum, rating) => sum + rating, 0) / allRatings.length : 0,
+            dailyData: analyticsData.map(data => ({
+                date: new Date(data.date).toISOString().split('T')[0],
+                revenue: data.revenue,
+                completedServices: data.completedServices,
+                noShows: data.noShows,
+                averageRating: data.ratings.length > 0 ? data.ratings.reduce((sum, rating) => sum + rating, 0) / data.ratings.length : 0,
+            })),
+        };
+    },
+});
