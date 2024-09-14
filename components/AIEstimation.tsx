@@ -1,39 +1,43 @@
 // components/ai-estimation.tsx
 'use client'
 
-import { useState } from 'react'
-import { useMutation } from 'convex/react'
-import { api } from '@/convex/_generated/api'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
-import { useToast } from '@/hooks/use-toast'
-
+import { api } from '@/convex/_generated/api'
+import { useMutation } from 'convex/react'
+import { useState } from 'react'
+import Spinner from './SpinnerComponent'
+import { useToast } from './ui/use-toast'
+import { formatCurrency } from './utils/format-currency'
 
 interface AIEstimationProps {
-    vehicleDetails: VehicleDetailsType // Specific type
-    customizations: CustomizationsType // Specific type
+    vehicleDetails: VehicleDetailsType;
+    selectedServices: Array<ServiceType>;
+    customizations: CustomizationsType;
 }
-interface AIEstimationProps {
-    vehicleDetails: any // Replace with proper type
-    selectedServices: Array<ServiceType>
-    customizations: any // Replace with proper type
-}
+
+const AIEstimation = ({ vehicleDetails, selectedServices, customizations }: AIEstimationProps) => {
+    const [estimationResult, setEstimationResult] = useState<{ estimatedTotal: number, detailedAnalysis: string } | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [retryCount, setRetryCount] = useState(0)
+    const formattedTotal = formatCurrency(estimationResult.estimatedTotal, 'en-US', 'USD');
 
     const calculateEstimate = useMutation(api.estimations.calculate, {
-	        onError: (error) => {
-	            console.error("Failed to calculate estimate:", error);
-	            useToast({
-	                title: "Error",
-	                description: "Failed to calculate estimate due to server error",
-	                variant: "destructive"
-	            });
-	        }
-	    })
-
-export function AIEstimation({ vehicleDetails, selectedServices, customizations }: AIEstimationProps) {
-    const [estimationResult, setEstimationResult] = useState<{ estimatedTotal: number, detailedAnalysis: string } | null>(null)
-    const calculateEstimate = useMutation(api.estimations.calculate)
+        onMutate: () => {
+            setIsLoading(true)
+            setError(null)
+        },
+        onSuccess: (result) => {
+            setIsLoading(false)
+            setEstimationResult(result)
+        },
+        onError: (err) => {
+            setIsLoading(false)
+            setError(err.message)
+            setRetryCount(retryCount + 1)
+        },
+    })
 
     const handleEstimate = async () => {
         try {
@@ -46,6 +50,7 @@ export function AIEstimation({ vehicleDetails, selectedServices, customizations 
             useToast({ title: "Estimate calculated successfully" })
         } catch (error) {
             console.error("Error calculating estimate:", error)
+            setError(error.message)
             useToast({
                 title: "Error",
                 description: "Failed to calculate estimate",
@@ -54,19 +59,13 @@ export function AIEstimation({ vehicleDetails, selectedServices, customizations 
         }
     }
 
-    const [isLoading, setIsLoading] = useState(false);
-const [error, setError] = useState<string | null>(null);
-const calculateEstimate = useMutation(api.estimations.calculate, {
-  onMutate: () => {
-    setIsLoading(true);
-    setError(null);
-  },
-  onSuccess: () => setIsLoading(false),
-  onError: (err) => {
-    setIsLoading(false);
-    setError('Failed to calculate estimate. Please try again.');
-  },
-});
+    const handleRetry = async () => {
+        if (retryCount < 3) {
+            handleEstimate()
+        } else {
+            setError("Failed to calculate estimate after multiple attempts. Please try again later.")
+        }
+    }
 
     return (
         <Card>
@@ -74,17 +73,31 @@ const calculateEstimate = useMutation(api.estimations.calculate, {
                 <CardTitle>AI Estimation</CardTitle>
             </CardHeader>
             <CardContent>
-                <Button onClick={handleEstimate}>
+                <Button onClick={handleEstimate} disabled={isLoading}>
                     Calculate Estimate
+                    {isLoading && <Spinner className="ml-2" />}
                 </Button>
-                {calculateEstimate.isLoading && <Spinner className="ml-2" />}
+                {error && (
+                    <div className="mt-2">
+                        <p className="text-red-500">{error}</p>
+                        <Button onClick={handleRetry} className="mt-2">
+                            Retry
+                        </Button>
+                    </div>
+                )}
                 {estimationResult && (
                     <div className="mt-4">
-                        <h3 className="text-lg font-semibold">Estimated Total: ${estimationResult.estimatedTotal.toFixed(2)}</h3>
-                        <p className="mt-2">Detailed Analysis: {estimationResult.detailedAnalysis}</p>
+                        <h3 className="text-lg font-semibold">Estimated Total: {formatCurrency(estimationResult.estimatedTotal)}</h3>
+                        <p className="mt-2">Detailed Analysis:</p>
+                        <details>
+                            <summary>View detailed analysis</summary>
+                            <p>{estimationResult.detailedAnalysis}</p>
+                        </details>
                     </div>
                 )}
             </CardContent>
         </Card>
     )
 }
+
+export default AIEstimation
