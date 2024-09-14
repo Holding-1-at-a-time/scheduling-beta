@@ -1,43 +1,91 @@
-// convex/analytics.ts
 import { query } from './_generated/server'
 import { v } from 'convex/values'
+import { getTenantId } from './auth'
+
+interface Appointment {
+    userId: string;
+    status: string;
+    price: number;
+    date: Date;
+    serviceName: string;
+}
+
+interface Review {
+    userId: string;
+    rating: number;
+}
+
+interface Service {
+    revenue: number;
+    status: string;
+}
+
+interface AnalyticsData {
+    date: Date;
+    revenue: number;
+    completedServices: number;
+    noShows: number;
+    ratings: number[];
+}
+
+interface ServiceUsage {
+    serviceId: string;
+}
+
+interface ServiceBreakdown {
+    name: string;
+    value: number;
+}
 
 export const getBusinessMetrics = query({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        tenantId: v.id('tenants'),
+        userId: v.id('users'),
+        customerId: v.string(),
+        status: v.string(),
+        service: v.string(),
+        servicesName: v.string(),
+        serviceId: v.id('services'),
+        serviceBreakdown: v.array(v.string()),
+    },
+    async handler(ctx) {
         const identity = await ctx.auth.getUserIdentity()
         if (!identity) throw new Error('Unauthenticated')
 
-        const userId = identity.subject
+        const userId = identity.subjec
+
 
         // Fetch metrics from the database
-        const totalRevenue = await ctx.db
+        const completedAppointments = (await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('userId'), userId))
             .filter(q => q.eq(q.field('status'), 'completed'))
-            .sum('price')
+            .collect()) ?? []
 
-        const completedServices = await ctx.db
+        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.price, 0)
+
+
+        const completedServices = (await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('userId'), userId))
             .filter(q => q.eq(q.field('status'), 'completed'))
-            .count()
+            .collect()) ?? 0
 
-        const totalAppointments = await ctx.db
+        const totalAppointments = (await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('userId'), userId))
-            .count()
+            .collect()).length ?? 0
 
-        const noShows = await ctx.db
+        const noShows = (await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('userId'), userId))
             .filter(q => q.eq(q.field('status'), 'no-show'))
-            .count()
+            .collect()).length ?? 0
 
-        const ratings = await ctx.db
+        const ratings = (await ctx.db
             .query('reviews')
             .filter(q => q.eq(q.field('userId'), userId))
-            .collect()
+            .collect()) ?? []
 
         const averageRating = ratings.length > 0
             ? ratings.reduce((sum, review) => sum + review.rating, 0) / ratings.length
@@ -52,9 +100,9 @@ export const getBusinessMetrics = query({
     },
 })
 
-export const getRevenueData = query({
+export const getThirtyDayRevenueData = query({
     args: {},
-    handler: async (ctx) => {
+    async handler(ctx) {
         const identity = await ctx.auth.getUserIdentity()
         if (!identity) throw new Error('Unauthenticated')
 
@@ -64,187 +112,14 @@ export const getRevenueData = query({
         const thirtyDaysAgo = new Date()
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-        const appointments = await ctx.db
+        const appointments = (await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('userId'), userId))
             .filter(q => q.gte(q.field('date'), thirtyDaysAgo))
             .filter(q => q.eq(q.field('status'), 'completed'))
-            .collect()
+            .collect()) ?? []
 
         // Group appointments by date and sum the revenue
-        const revenueByDate = appointments.reduce((acc, appointment) => {
-            const date = new Date(appointment.date).toISOString().split('T')[0]
-            acc[date] = (acc[date] || 0) + appointment.price
-            return acc
-        }, {} as Record<string, number>)
-
-        // Convert to array and sort by date
-        return Object.entries(revenueByDate)
-            .map(([date, revenue]) => ({ date, revenue }))
-            .sort((a, b) => a.date.localeCompare(b.date))
-    },
-})
-
-export const getServiceBreakdown = query({
-    args: {},
-    handler: async (ctx) => {
-        const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
-
-        const userId = identity.subject
-
-        const appointments = await ctx.db
-            .query('appointments')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .filter(q => q.eq(q.field('status'), 'completed'))
-            .collect()
-
-        // Group appointments by service and count occurrences
-        const serviceBreakdown = appointments.reduce((acc, appointment) => {
-            acc[appointment.serviceName] = (acc[appointment.serviceName] || 0) + 1
-            return acc
-        }, {} as Record<string, number>)
-
-        // Convert to array format for the pie chart
-        return Object.entries(serviceBreakdown)
-            .map(([name, value]) => ({ name, value }))
-    },
-})
-
-import { Query } from "convex/server";
-
-export const getMetrics = Query(async ({ db }) => {
-    try {
-        const totalRevenue = await db.query("services").sum("revenue") ?? 0;
-        const completedServices = await db.query("services").filter({ status: "completed" }).count();
-        const totalAppointments = await db.query("appointments").count();
-        const noShowAppointments = await db.query("appointments").filter({ status: "no-show" }).count();
-        const noShowRate = totalAppointments > 0 ? noShowAppointments / totalAppointments : 0;
-        const averageRating = await db.query("ratings").avg("score") ?? 0;
-
-        return {
-            totalRevenue,
-            completedServices,
-            noShowRate,
-            averageRating,
-        };
-    } catch (error) {
-        console.error("Error fetching metrics:", error);
-        throw new Error("Failed to fetch analytics metrics.");
+        const revenueByDate = appointments.reduce
     }
-});
-
-// convex/analytics.ts
-
-export const getAnalyticsData = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenantId = await getTenantId(ctx);
-
-        const analyticsData = await ctx.db
-            .query("analytics")
-            .withIndex("by_tenant_and_date", (q) => q.eq("tenantId", tenantId))
-            .order("desc")
-            .take(30);
-
-        return analyticsData.map((data) => ({
-            date: new Date(data.date).toISOString().split('T')[0],
-            revenue: data.revenue,
-        }));
-    },
-});
-
-
-
-export const getDetailedAnalytics = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenantId = await getTenantId(ctx);
-
-        const analyticsData = await ctx.db
-            .query("analytics")
-            .withIndex("by_tenant_and_date", (q) => q.eq("tenantId", tenantId))
-            .order("desc")
-            .take(30);
-
-        const totalRevenue = analyticsData.reduce((sum, data) => sum + data.revenue, 0);
-        const completedServices = analyticsData.reduce((sum, data) => sum + data.completedServices, 0);
-        const totalNoShows = analyticsData.reduce((sum, data) => sum + data.noShows, 0);
-        const allRatings = analyticsData.flatMap(data => data.ratings);
-
-        return {
-            totalRevenue,
-            completedServices,
-            noShowRate: totalNoShows / (completedServices + totalNoShows),
-            averageRating: allRatings.length > 0 ? allRatings.reduce((sum, rating) => sum + rating, 0) / allRatings.length : 0,
-            dailyData: analyticsData.map(data => ({
-                date: new Date(data.date).toISOString().split('T')[0],
-                revenue: data.revenue,
-                completedServices: data.completedServices,
-                noShows: data.noShows,
-                averageRating: data.ratings.length > 0 ? data.ratings.reduce((sum, rating) => sum + rating, 0) / data.ratings.length : 0,
-            })),
-        };
-    },
-});
-
-
-export const getRevenueData = query({
-    args: {
-        startDate: v.string(),
-        endDate: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
-        if (!tenantId) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        const revenue = await ctx.db
-            .query("transactions")
-            .withIndex("by_tenantId_and_date", (q) =>
-                q
-                    .eq("tenantId", tenantId)
-                    .gte("date", args.startDate)
-                    .lte("date", args.endDate)
-            )
-            .collect();
-
-        const aggregatedRevenue = revenue.reduce((acc, transaction) => {
-            const date = transaction.date.split('T')[0];
-            acc[date] = (acc[date] || 0) + transaction.amount;
-            return acc;
-        }, {} as Record<string, number>);
-
-        return Object.entries(aggregatedRevenue).map(([date, revenue]) => ({
-            date,
-            revenue,
-        }));
-    },
-});
-
-export const getServiceBreakdown = query({
-    handler: async (ctx) => {
-        const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
-        if (!tenantId) {
-            throw new ConvexError("Unauthorized");
-        }
-
-        const services = await ctx.db
-            .query("services")
-            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-            .collect();
-
-        const serviceUsage = await ctx.db
-            .query("appointments")
-            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
-            .collect();
-
-        const serviceBreakdown = services.map((service) => ({
-            name: service.name,
-            value: serviceUsage.filter((usage) => usage.serviceId === service._id).length,
-        }));
-
-        return serviceBreakdown;
-    },
 });

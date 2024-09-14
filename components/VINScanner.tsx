@@ -1,30 +1,26 @@
 // components/vin-scanner.tsx
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Quagga from 'quagga';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
-import { useMutation, useQuery } from 'convex/react';
+import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 
 interface VINScannerProps {
-    tenantId: Id<"tenants">;
+    onScan: (vin: string) => void;
 }
 
-export const VINScanner: React.FC<VINScannerProps> = ({ tenantId }) => {
+export const VINScanner: React.FC<VINScannerProps> = ({ onScan }) => {
     const scannerRef = useRef<HTMLDivElement>(null);
     const [isScanning, setIsScanning] = useState(false);
     const [manualVIN, setManualVIN] = useState('');
-    const [isProcessing, setIsProcessing] = useState(false);
+    const validateVIN = useMutation(api.vehicles.validateVIN);
 
-    const createVehicleProfile = useMutation(api.vehicles.createVehicleProfile);
-    const decodeVIN = useMutation(api.vehicles.decodeVIN);
-
-    useEffect(() => {
-        if (isScanning && scannerRef.current) {
+    const startScanner = useCallback(() => {
+        if (scannerRef.current) {
             Quagga.init({
                 inputStream: {
                     type: 'LiveStream',
@@ -52,68 +48,81 @@ export const VINScanner: React.FC<VINScannerProps> = ({ tenantId }) => {
                 Quagga.start();
             });
 
-            Quagga.onDetected((data) => {
-                const vin = data.codeResult.code;
-                if (validateVIN(vin)) {
-                    handleVINProcessing(vin);
-                    setIsScanning(false);
-                    Quagga.stop();
+            Quagga.onDetected(async (data) => {
+                const scannedVIN = data.codeResult.code;
+                try {
+                    const isValid = await validateVIN({ vin: scannedVIN });
+                    if (isValid) {
+                        onScan(scannedVIN);
+                        setIsScanning(false);
+                        Quagga.stop();
+                        toast({
+                            title: 'VIN Scanned',
+                            description: `Successfully scanned VIN: ${scannedVIN}`,
+                        });
+                    } else {
+                        toast({
+                            title: 'Invalid VIN',
+                            description: 'The scanned VIN is not valid. Please try again.',
+                            variant: 'destructive',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error validating VIN:', error);
+                    toast({
+                        title: 'Validation Error',
+                        description: 'Failed to validate the scanned VIN. Please try again or enter manually.',
+                        variant: 'destructive',
+                    });
                 }
             });
-
-            return () => {
-                Quagga.stop();
-            };
         }
-    }, [isScanning]);
+    }, [onScan, validateVIN]);
+
+    useEffect(() => {
+        if (isScanning) {
+            startScanner();
+        } else {
+            Quagga.stop();
+        }
+
+        return () => {
+            Quagga.stop();
+        };
+    }, [isScanning, startScanner]);
 
     const handleManualSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateVIN(manualVIN)) {
-            await handleVINProcessing(manualVIN);
-        } else {
-            toast({
-                title: 'Invalid VIN',
-                description: 'Please enter a valid 17-character VIN.',
-                variant: 'destructive',
-            });
-        }
-    };
-
-    const handleVINProcessing = async (vin: string) => {
-        setIsProcessing(true);
         try {
-            const decodedInfo = await decodeVIN({ vin });
-            await createVehicleProfile({
-                tenantId,
-                vin,
-                ...decodedInfo,
-            });
-            toast({
-                title: 'Success',
-                description: `Vehicle profile created for VIN: ${vin}`,
-            });
+            const isValid = await validateVIN({ vin: manualVIN });
+            if (isValid) {
+                onScan(manualVIN);
+                toast({
+                    title: 'VIN Submitted',
+                    description: `Successfully submitted VIN: ${manualVIN}`,
+                });
+                setManualVIN('');
+            } else {
+                toast({
+                    title: 'Invalid VIN',
+                    description: 'Please enter a valid 17-character VIN.',
+                    variant: 'destructive',
+                });
+            }
         } catch (error) {
-            console.error('Error processing VIN:', error);
+            console.error('Error validating VIN:', error);
             toast({
-                title: 'Error',
-                description: error instanceof Error ? error.message : 'An unknown error occurred',
+                title: 'Validation Error',
+                description: 'Failed to validate the entered VIN. Please try again.',
                 variant: 'destructive',
             });
-        } finally {
-            setIsProcessing(false);
-            setManualVIN('');
         }
-    };
-
-    const validateVIN = (vin: string): boolean => {
-        return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin);
     };
 
     return (
         <div className="space-y-4">
             <div className="flex space-x-2">
-                <Button onClick={() => setIsScanning(!isScanning)} disabled={isProcessing}>
+                <Button onClick={() => setIsScanning(!isScanning)}>
                     {isScanning ? 'Stop Scanning' : 'Start Scanning'}
                 </Button>
                 <form onSubmit={handleManualSubmit} className="flex-1 flex space-x-2">
@@ -123,11 +132,8 @@ export const VINScanner: React.FC<VINScannerProps> = ({ tenantId }) => {
                         value={manualVIN}
                         onChange={(e) => setManualVIN(e.target.value.toUpperCase())}
                         maxLength={17}
-                        disabled={isProcessing}
                     />
-                    <Button type="submit" disabled={isProcessing}>
-                        {isProcessing ? 'Processing...' : 'Submit'}
-                    </Button>
+                    <Button type="submit">Submit</Button>
                 </form>
             </div>
             {isScanning && (

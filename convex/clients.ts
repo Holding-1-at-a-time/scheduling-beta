@@ -3,7 +3,7 @@ import { v } from 'convex/values'
 import { Id } from './_generated/dataModel'
 
 export const list = query({
-    args: { tenantId: v.string(), page: v.number(), pageSize: v.number() },
+    args: { tenantId: v.id('tenants'), page: v.number(), pageSize: v.number() },
     handler: async (ctx, args) => {
         const { tenantId, page, pageSize } = args
         const skip = (page - 1) * pageSize
@@ -20,7 +20,7 @@ export const list = query({
 
 export const add = mutation({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         name: v.string(),
         email: v.string(),
         phone: v.string(),

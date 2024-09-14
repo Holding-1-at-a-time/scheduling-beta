@@ -18,7 +18,7 @@ interface Event {
 // Query to fetch events for a specific date range
 export const getEvents = query({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         start: v.string(),
         end: v.string(),
     },
@@ -39,7 +39,7 @@ export const getEvents = query({
 // Mutation to add a new event
 export const addEvent = mutation({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         title: v.string(),
         start: v.string(),
         end: v.string(),

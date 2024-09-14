@@ -43,3 +43,55 @@ export const getStaffProductivity = query({
         ]
     },
 })
+
+export const completedServiceCount = query({
+    args: { tenantId: v.id('tenants'), servicesName: v.string()},
+    handler: async (ctx, args) => {
+        const { tenantId, servicesName } = args
+        const services = await ctx.db
+            .query('services')
+            .filter(q => q.eq(q.field('tenantId'), tenantId) && q.eq(q.field('name'), servicesName))
+            .collect()
+        const appointments = await ctx.db
+            .query('appointments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId) && q.in(q.field('serviceId'), services.map(s => s._id)))
+            .collect()
+        return appointments.filter(a => a.status === 'completed').length
+    },
+});
+
+export const totalRevenue = query({
+    args: { tenantId: v.id('tenants'), servicesName: v.string()},
+    handler: async (ctx, args) => {
+        const { tenantId, servicesName } = args
+        const services = await ctx.db
+            .query('services')
+            .filter(q => q.eq(q.field('tenantId'), tenantId) && q.eq(q.field('name'), servicesName))
+            .collect()
+        return services.reduce((acc, s) => acc + s.price, 0)
+    },
+});
+
+export const noShowAppointmentCount = query({
+    args: { tenantId: v.id('tenants'), appointmentId: v.id('appointments')},
+    handler: async (ctx, args) => {
+        const { tenantId, appointmentId } = args
+        const appointments = await ctx.db
+            .query('appointments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId) && q.eq(q.field('id'), appointmentId))
+            .collect()
+        return appointments.filter(a => a.status === 'no-show').length
+    },
+});
+
+export const totalAppointmentCount = query({
+    args: { tenantId: v.id('tenants'), appointmentId: v.id('appointments')},
+    handler: async (ctx, args) => {
+        const { tenantId, appointmentId } = args
+        const appointments = await ctx.db
+            .query('appointments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId) && q.eq(q.field('id'), appointmentId))
+            .collect()
+        return appointments.length
+    },
+});

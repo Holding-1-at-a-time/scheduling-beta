@@ -3,7 +3,7 @@ import { v } from 'convex/values'
 
 export const addConditionDetail = mutation({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         hotspotId: v.id('vehicleParts'),
         issueType: v.string(),
         severity: v.string(),

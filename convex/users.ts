@@ -12,7 +12,7 @@ export const getCurrentUser = query({
         }
         const user = await ctx.db
             .query("users")
-            .withIndex("by_email", (q) => q.eq("email", identity.email))
+            .withIndex("by_tenant", (q) => q.eq("tenantId", identity.tenantId))
             .first();
         if (!user) {
             throw new Error("User not found");

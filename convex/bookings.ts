@@ -5,7 +5,7 @@ import { Id } from './_generated/dataModel'
 export const getPreviousServices = query({
     args: {
         vehicleId: v.string(),
-        userId: v.string(),
+        userId: v.id('users'),
         organizationId: v.string(),
     },
     handler: async (ctx, args) => {
@@ -27,7 +27,7 @@ export const createBooking = mutation({
     args: {
         serviceId: v.id('services'),
         vehicleId: v.string(),
-        userId: v.string(),
+        userId: v.id('users'),
         organizationId: v.string(),
         slot: v.object({
             start: v.string(),

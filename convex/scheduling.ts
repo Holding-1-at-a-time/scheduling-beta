@@ -2,9 +2,15 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { ConvexError } from "convex/values";
 
-export const getAvailableSlots = query({
+/**
+ * Returns all available slots for a given date
+ *
+ * @param args.date the date to retrieve available slots for
+ * @returns an array of available slots, where each slot is an object with an id and time
+ */
+export const getAvailableSlots = query ({
     args: { date: v.string() },
-    handler: async (ctx, args) => {
+    handler: async (ctx, { date }: { date: string }) => {
         const { tenantId } = await ctx.auth.getUserIdentity() ?? {};
         if (!tenantId) {
             throw new ConvexError("Unauthorized");
@@ -13,7 +19,7 @@ export const getAvailableSlots = query({
         const slots = await ctx.db
             .query("availableSlots")
             .withIndex("by_tenantId_and_date", (q) =>
-                q.eq("tenantId", tenantId).eq("date", args.date)
+                q.eq("tenantId", tenantId).eq("date", date)
             )
             .collect();
 
@@ -23,7 +29,6 @@ export const getAvailableSlots = query({
         }));
     },
 });
-
 export const bookAppointment = mutation({
     args: {
         date: v.string(),

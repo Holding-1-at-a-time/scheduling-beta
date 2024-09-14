@@ -5,7 +5,7 @@ import { Id } from "./_generated/dataModel";
 
 export const createVehicleProfile = mutation({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         vin: v.string(),
         make: v.string(),
         model: v.string(),
@@ -48,7 +48,7 @@ export const createVehicleProfile = mutation({
 });
 
 export const getVehicleByVIN = query({
-    args: { tenantId: v.string(), vin: v.string() },
+    args: { tenantId: v.id('tenants'), vin: v.string() },
     handler: async (ctx, args) => {
         const { tenantId, vin } = args;
 
@@ -91,3 +91,38 @@ async function simulateVINDecoding(vin: string): Promise<{ make: string; model: 
         }, 1000);
     });
 }
+
+export const validateVIN = mutation({
+    args: { vin: v.string() },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Unauthorized");
+        }
+
+        const { vin } = args;
+
+        // Basic VIN validation
+        const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
+        if (!vinRegex.test(vin)) {
+            return false;
+        }
+
+        // Check for VIN uniqueness within the tenant
+        const existingVehicle = await ctx.db
+            .query("vehicles")
+            .withIndex("by_vin_and_tenantId", (q) =>
+                q.eq("vin", vin).eq("tenantId", identity.tokenIdentifier)
+            )
+            .unique();
+
+        if (existingVehicle) {
+            throw new Error("VIN already exists for this tenant");
+        }
+
+        // In a real-world scenario, you might want to make an API call to a VIN decoding service here
+        // to verify the VIN and get additional vehicle information
+
+        return true;
+    },
+});

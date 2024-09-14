@@ -4,7 +4,7 @@ import { v } from 'convex/values'
 
 export const processQuote = mutation({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         vehicleType: v.union(v.literal('sedan'), v.literal('suv'), v.literal('truck'), v.literal('van')),
         condition: v.union(v.literal('excellent'), v.literal('good'), v.literal('fair'), v.literal('poor')),
         images: v.array(v.string()),
@@ -76,7 +76,7 @@ export const processQuote = mutation({
 
 export const dynamicQuote = mutation({
     args: {
-        tenantId: v.string(),
+        tenantId: v.id('tenants'),
         vehicleType: v.union(v.literal('sedan'), v.literal('suv'), v.literal('truck'), v.literal('van')),
         condition: v.union(v.literal('excellent'), v.literal('good'), v.literal('fair'), v.literal('poor')),
         images: v.array(v.string().url()),
