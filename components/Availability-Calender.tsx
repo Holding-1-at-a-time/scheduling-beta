@@ -4,8 +4,7 @@
 import React from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { Calendar } from '@/components/ui/calendar';
-import { Spinner } from '@/components/ui/spinner';
+import { Calendar } from '@/components/calendar';
 
 interface AvailabilityCalendarProps {
     onDateRangeSelect: (range: { from: Date; to: Date }) => void;
