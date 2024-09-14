@@ -72,7 +72,7 @@ export const ClientManagement: React.FC = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {clients.map((client) => (
+                    {clients.map((Client) => (
                         <TableRow key={client._id}>
                             <TableCell>{client.name}</TableCell>
                             <TableCell>{client.email}</TableCell>
