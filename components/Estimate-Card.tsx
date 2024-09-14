@@ -1,28 +1,29 @@
 // components/estimate-card.tsx
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React from 'react'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Id } from '@/convex/_generated/dataModel'
 
 interface EstimateItem {
-  id: string;
-  name: string;
-  price: number;
+  id: string
+  name: string
+  price: number
 }
 
 interface Estimate {
-  _id: string;
-  number: string;
-  status: 'pending' | 'approved' | 'declined';
-  items: EstimateItem[];
-  total: number;
+  _id: Id<'estimates'>
+  number: string
+  status: 'pending' | 'approved' | 'declined'
+  items: EstimateItem[]
+  total: number
 }
 
 interface EstimateCardProps {
-  readonly estimate: Estimate;
-  readonly onApprove: (id: string) => void;
-  readonly onDecline: (id: string) => void;
-  readonly onConvert: (id: string) => void;
-  readonly onRevise: (id: string) => void;
+  readonly estimate: Estimate
+  readonly onApprove: (id: Id<'estimates'>) => Promise<void>
+  readonly onDecline: (id: Id<'estimates'>) => Promise<void>
+  readonly onConvert: (id: Id<'estimates'>) => Promise<void>
+  readonly onRevise: (id: Id<'estimates'>) => Promise<void>
 }
 
 export function EstimateCard({
@@ -32,14 +33,13 @@ export function EstimateCard({
   onConvert,
   onRevise
 }: EstimateCardProps) {
-  const getStatusColor = (status: Estimate['status']) => {
+  const getStatusColor = (status: Estimate['status']): string => {
     switch (status) {
-      case 'pending': return 'text-yellow-500';
-      case 'approved': return 'text-green-500';
-      case 'declined': return 'text-red-500';
-      default: return '';
+      case 'pending': return 'text-yellow-500'
+      case 'approved': return 'text-green-500'
+      case 'declined': return 'text-red-500'
     }
-  };
+  }
 
   return (
     <Card className="bg-primary text-primary-foreground shadow-lg hover:shadow-2xl transition-shadow duration-300">
@@ -80,5 +80,5 @@ export function EstimateCard({
         </div>
       </CardFooter>
     </Card>
-  );
+  )
 }
