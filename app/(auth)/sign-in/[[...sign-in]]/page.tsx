@@ -5,7 +5,6 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 const SignInPage: React.FC = () => {
-    const router = useRouter();
 
     return (
         <ErrorBoundary fallback={<div>Something went wrong. Please try again later.</div>}>
