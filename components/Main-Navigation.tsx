@@ -16,14 +16,10 @@ export const getServicePopularity = query({
       .filter(q => q.eq(q.field('tenantId'), tenantId))
       .collect()
 
-    const servicePopularity = services.map(service => ({
-      serviceName: service.name,
-      count: appointments.filter(apt => apt.serviceId === service._id).length
-    }))
-
-    return servicePopularity
-  },
-})
+     return services.map(service => ({
+	          serviceName: service.name,
+	          count: appointments.filter(apt => apt.serviceId === service._id).length
+	        }));
 
 export const getRevenueData = query({
   args: { tenantId: v.string() },
