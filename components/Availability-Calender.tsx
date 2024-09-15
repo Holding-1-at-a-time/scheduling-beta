@@ -36,7 +36,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ onDa
             await setAvailability({ date: date.getTime(), isAvailable: !isCurrentlyAvailable });
             toast({
                 title: "Availability Updated",
-                description: `${date.toDateString()} is now ${!isCurrentlyAvailable ? 'available' : 'unavailable'}.`,
+                description: `${date.toDateString()} is now ${!isCurrentlyAvailable ? 'unavailable' : 'available'}.`,
             });
         } catch (error) {
             console.error('Error updating availability:', error);
