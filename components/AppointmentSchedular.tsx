@@ -34,7 +34,9 @@ export function AppointmentScheduler() {
     const cancelAppointment = useMutation(api.appointments.cancel);
 
     const filteredAppointments = useMemo(() => {
-        if (!appointments) return [];
+        if (!appointments) {
+            return {}
+        };
         return appointments.filter((appointment) => {
             const appointmentDate = parseISO(appointment.date);
             const isOnSelectedDate = isValid(appointmentDate) &&
