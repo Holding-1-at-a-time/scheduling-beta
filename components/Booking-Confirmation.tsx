@@ -17,8 +17,9 @@ export function BookingConfirmation() {
     const { toast } = useToast();
 
     const handleSendEmail = async () => {
-        if (!bookingDetails) return;
-
+        if (!bookingDetails) {
+            return;
+        }
         try {
             await sendConfirmationEmail({ bookingId });
             toast({
