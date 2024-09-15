@@ -62,7 +62,9 @@ export const VehicleProfiles: React.FC = () => {
     }, [addVehicle, form]);
 
     const handleUpdateVehicle = useCallback(async (data: VehicleFormData) => {
-        if (!editingVehicle) return;
+        if (!editingVehicle) {
+            return;
+        }
         try {
             await updateVehicle({ id: editingVehicle._id, ...data });
             setEditingVehicle(null);
