@@ -15,6 +15,15 @@ interface Appointment {
     isPaid: boolean;
 }
 
+const [page, setPage] = useState(1);
+const handlePageChange = (newPage: number) => {
+    if (newPage > 0) {
+        setPage(newPage);
+    } else {
+        toast({ title: "Invalid page number", description: "Page number must be positive" });
+    }
+};
+
 export const AppointmentList() {
     const [page, setPage] = useState(1);
     const pageSize = 10;
