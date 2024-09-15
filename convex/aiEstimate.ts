@@ -1,22 +1,58 @@
+import { MutationCtx } from './_generated/server.d';
+import { Service } from './types';
 import { mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { Id } from './_generated/dataModel.d';
+import { ServiceType, VehicleDetailsType, CustomizationsType, EstimationType, TenantConfigType } from '@/types';
+import { getTenantConfig } from '@/utils/tenantConfig';
+
+export const calculateEstimate = mutation({
+  args: {
+    vehicleDetails: v.literal({
+      make: v.string(),
+      model: v.string(),
+      year: v.number(),
+      condition: v.string(),
+    }),
+    selectedServices: v.array(
+      v.union({
+        id: v.string(),
+        name: v.string(),
+        price: v.number(),
+        duration: v.number(),
+      })
+    ),
+    customizations: v.object({
+      [key: string]: {
+      name: v.string(),
+      price: v.number(),
+    }
+    })
+  tenantId: v.id('tenants'),
+  }
+});
 
 
-
-export const calculateEstimate = mutation('estimations.calculate', async ({ vehicleDetails, selectedServices, customizations, tenantId }) => {
+export const handler = async (ctx: MutationCtx, args: {
+  vehicleDetails: VehicleDetailsType;
+  selectedServices: Array<ServiceType>;
+  customizations: CustomizationsType;
+  tenantId: Id<'tenants'>;
+}): Promise<EstimationType> => {
   try {
     // Validate input data
-    if (!vehicleDetails || !selectedServices || !customizations) {
+    if (!args.vehicleDetails || !args.selectedServices || !args.customizations) {
       throw new Error('Invalid input data');
     }
 
     // Calculate estimated total
-    const estimatedTotal = calculateEstimatedTotal(vehicleDetails, selectedServices, customizations);
+    const estimatedTotal = calculateEstimatedTotal(args.vehicleDetails, args.selectedServices, args.customizations);
 
     // Generate detailed analysis
-    const detailedAnalysis = generateDetailedAnalysis(vehicleDetails, selectedServices, customizations, estimatedTotal);
+    const detailedAnalysis = generateDetailedAnalysis(args.vehicleDetails, args.selectedServices, args.customizations, estimatedTotal);
 
     // Apply tenant-specific configurations
-    const tenantConfig = await getTenantConfig(tenantId);
+    const tenantConfig = await getTenantConfig(args.tenantId);
     if (tenantConfig) {
       estimatedTotal *= tenantConfig.markup;
     }
@@ -26,7 +62,7 @@ export const calculateEstimate = mutation('estimations.calculate', async ({ vehi
     console.error('Error calculating estimate:', error);
     throw error;
   }
-});
+};
 
 function generateDetailedAnalysis(vehicleDetails: VehicleDetailsType, selectedServices: Array<ServiceType>, customizations: CustomizationsType, estimatedTotal: number): string {
   // Generate a detailed analysis string
@@ -40,7 +76,7 @@ function generateDetailedAnalysis(vehicleDetails: VehicleDetailsType, selectedSe
     ${selectedServices.map((service) => `- ${service.name}: $${service.price}`).join('\n')}
 
     Customizations:
-    ${customizations.map((customization) => `- ${customization.name}: $${customization.price}`).join('\n')}
+    ${Object.entries(customizations).map(([key, customization]) => `- ${customization.name}: $${customization.price}`).join('\n')}
 
     Estimated Total: $${estimatedTotal.toFixed(2)}
   `;
@@ -53,16 +89,10 @@ function calculateEstimatedTotal(vehicleDetails: VehicleDetailsType, selectedSer
   const basePrice = vehicleDetails.basePrice;
 
   // Calculate the total cost of selected services
-  let serviceCost = 0;
-  for (const service of selectedServices) {
-    serviceCost += service.price;
-  }
+  const serviceCost = selectedServices.reduce((acc, service) => acc + service.price, 0);
 
   // Calculate the total cost of customizations
-  let customizationCost = 0;
-  for (const customization of customizations) {
-    customizationCost += customization.price;
-  }
+  const customizationCost = Object.values(customizations).reduce((acc, customization) => acc + customization.price, 0);
 
   // Calculate the estimated total
   const estimatedTotal = basePrice + serviceCost + customizationCost;
@@ -71,16 +101,7 @@ function calculateEstimatedTotal(vehicleDetails: VehicleDetailsType, selectedSer
 }
 
 async function getTenantConfig(tenantId: string): Promise<TenantConfigType | null> {
-  // Retrieve tenant-specific configurations from the database or cache
-  // ...
-async function getTenantConfig(tenantId: string): Promise<TenantConfigType | null> {
   try {
-    // Check if the tenant config is cached
-    const cachedConfig = await getCachedTenantConfig(tenantId);
-    if (cachedConfig) {
-      return cachedConfig;
-    }
-
     // Retrieve the tenant config from the database
     const tenantConfig = await db.tenantConfigs.findOne({ where: { tenantId } });
 
@@ -89,29 +110,9 @@ async function getTenantConfig(tenantId: string): Promise<TenantConfigType | nul
       return null;
     }
 
-    // Cache the tenant config for future requests
-    await cacheTenantConfig(tenantId, tenantConfig);
-
     return tenantConfig;
   } catch (error) {
     console.error('Error retrieving tenant config:', error);
     return null;
   }
-}
-
-// Helper function to retrieve the cached tenant config
-async function getCachedTenantConfig(tenantId: string): Promise<TenantConfigType | null> {
-  // Assuming you have a caching mechanism like Redis or Memcached
-  const cacheKey = `tenant-config:${tenantId}`;
-  const cachedConfig = await cache.get(cacheKey);
-  return cachedConfig ? JSON.parse(cachedConfig) : null;
-}
-
-// Helper function to cache the tenant config
-async function cacheTenantConfig(tenantId: string, tenantConfig: TenantConfigType) {
-  // Assuming you have a caching mechanism like Redis or Memcached
-  const cacheKey = `tenant-config:${tenantId}`;
-  await cache.set(cacheKey, JSON.stringify(tenantConfig));  
-  
-  return tenantConfig;
 }

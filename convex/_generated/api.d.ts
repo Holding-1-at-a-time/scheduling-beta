@@ -40,6 +40,7 @@ import type * as quotes from "../quotes.js";
 import type * as quoting from "../quoting.js";
 import type * as scheduling from "../scheduling.js";
 import type * as services from "../services.js";
+import type * as types from "../types.js";
 import type * as users from "../users.js";
 import type * as vehicle from "../vehicle.js";
 import type * as vehicleparts from "../vehicleparts.js";
@@ -79,6 +80,7 @@ declare const fullApi: ApiFromModules<{
   quoting: typeof quoting;
   scheduling: typeof scheduling;
   services: typeof services;
+  types: typeof types;
   users: typeof users;
   vehicle: typeof vehicle;
   vehicleparts: typeof vehicleparts;

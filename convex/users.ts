@@ -3,6 +3,89 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getTenantId } from "./auth";
 
+
+export const upsertUser = mutation({
+    args: {
+        user: v.id('users'),
+    },
+    handler: async (ctx, args) => {
+        const { clerkUserId } = args.user;
+        const existingUser = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_user_id", (q) => q.eq("clerkUserId", clerkUserId))
+            .first();
+
+        if (existingUser) {
+            return await ctx.db.patch(existingUser._id, args.user);
+        } else {
+            return await ctx.db.insert("users", args.user);
+        }
+    },
+});
+
+export const getUser = query({
+    args: { clerkUserId: v.string() },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("users")
+            .withIndex("by_clerk_user_id", (q) => q.eq("clerkUserId", args.clerkUserId))
+            .first();
+    },
+});
+
+export const updateUserOrganizations = mutation({
+    args: {
+        clerkUserId: v.string(),
+        organizations: v.array(v.object(users.organizations.element))
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_user_id", (q) => q.eq("clerkUserId", args.clerkUserId))
+            .first();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        return await ctx.db.patch(user._id, {
+            organizations: args.organizations
+        });
+    },
+});
+
+export const getUserOrganizations = query({
+    args: { clerkUserId: v.string() },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .withIndex("by_clerk_user_id", (q) => q.eq("clerkUserId", args.clerkUserId))
+            .first();
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        return user.organizations;
+    },
+});
+
+export const upsertOrganization = mutation({
+    args: {
+        organization: v.object(organizations)
+    },
+    handler: async (ctx, args) => {
+        const { id, ...orgData } = args.organization;
+        const existingOrg = await ctx.db.get(id);
+
+        if (existingOrg) {
+            return await ctx.db.patch(id, orgData);
+        } else {
+            return await ctx.db.insert("organizations", args.organization);
+        }
+    },
+});
+
 export const getCurrentUser = query({
     args: {},
     handler: async (ctx) => {

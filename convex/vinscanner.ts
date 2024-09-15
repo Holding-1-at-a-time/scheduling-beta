@@ -1,7 +1,18 @@
+import { useAuth } from '@clerk/nextjs';
+import { Id } from './_generated/dataModel.d';
 // convex/vehicles.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+
+interface Vehicle {
+    tenantId: Id<"tenants">;
+    vin: string;
+    make: string;
+    model: string;
+    year: number;
+    createdAt: string; 
+    updatedAt: string;
+}
 
 export const createVehicleProfile = mutation({
     args: {
@@ -17,7 +28,7 @@ export const createVehicleProfile = mutation({
         // Validate tenant
         const tenant = await ctx.db
             .query("tenants")
-            .filter((q) => q.eq(q.field("id"), tenantId))
+            .filter((q) => q.eq(q.field("tenantId"), tenantId))
             .unique();
         if (!tenant) {
             throw new Error("Tenant not found");
@@ -93,7 +104,7 @@ async function simulateVINDecoding(vin: string): Promise<{ make: string; model: 
 }
 
 export const validateVIN = mutation({
-    args: { vin: v.string() },
+    args: { vin: v.string(), useAuth:  },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) {

@@ -70,7 +70,7 @@ export default function NavigationBar() {
       </div>
       <div className="flex items-center space-x-4">
         {isSignedIn ? (
-          <UserButton afterSignOutUrl="/" signOutCallback={handleSignOut} />
+          <UserButton signOutCallback={handleSignOut} />
         ) : (
           <button
             onClick={handleSignIn}

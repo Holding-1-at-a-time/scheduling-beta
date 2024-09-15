@@ -1,19 +1,15 @@
 // components/settings.tsx
-import React, { Suspense } from 'react';
-import { useParams } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { SettingsIcon } from '@/components/icons';
-import { UserRolesManagement } from '@/components/settings/user-roles-management';
-import { BusinessDetails } from '@/components/settings/business-details';
-import { ServicePackages } from '@/components/settings/service-packages';
-import { NotificationPreferences } from '@/components/settings/notification-preferences';
-import { IntegrationsConfig } from '@/components/settings/integrations-config';
-import { AdvancedSettings } from '@/components/settings/advanced-settings';
-import { ErrorBoundary } from '@/components/error-boundary';
-import { LoadingSpinner } from '@/components/loading-spinner';
-import { useQuery } from 'convex/react';
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from '@/convex/_generated/api';
+import { useQuery } from 'convex/react';
+import { SettingsIcon } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { Suspense } from 'react';
+import ErrorBoundary from './ErrorBoundary';
+import AdvancedSettings from './Settings/Advanced-Settings';
+import IntegrationsConfig from './Settings/Integrations-Config';
+import LoadingSpinner from "./LoadingSpinner";
 
 export function Settings() {
   const params = useParams();
