@@ -51,8 +51,11 @@ export function AppointmentScheduler() {
     }, [appointments, selectedDate, searchTerm, statusFilter]);
 
     const handleDateChange = useCallback((date: Date | undefined) => {
-        if (date) setSelectedDate(date);
-    }, []);
+        if (date) {
+            setSelectedDate(date)
+        };
+    },
+                                         
 
     const handleAppointmentCreate = useCallback(async (appointmentData: Partial<Appointment>) => {
         try {
