@@ -33,7 +33,9 @@ export function AppointmentCalendar({ customerId, serviceId }: AppointmentCalend
     }, []);
 
     const handleBookAppointment = useCallback(async () => {
-        if (!selectedDate) return;
+        if (!selectedDate) {
+            return
+        };
 
         setIsBooking(true);
         try {
