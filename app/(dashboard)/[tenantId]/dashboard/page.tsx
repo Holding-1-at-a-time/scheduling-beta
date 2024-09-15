@@ -1,21 +1,15 @@
+
 import AnalyticsOverview from '@/components/Analytics-Overview'
-import { AdminDashboard } from '@/components/Dashboard/Admin-Dashboard'
-import { DashboardCard } from '@/components/Dashboard/Dashboard-Card'
+import AdminDashboard from '@/components/Dashboard/Admin-Dashboard'
+import DashboardCard from '@/components/Dashboard/dashboard-card'
 import { Header } from '@/components/Header'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import RevenueChart from '@/components/Revenue-Chart'
 import { Sidebar } from 'lucide-react'
-import { Suspense } from 'react'    
 
+import { Suspense } from 'react'
 
-
-
-interface DashboardCardProps {
-    title: string;
-    value: number | string;
-}
-
-const DashboardPage = (_props: DashboardPageProps) => {
+export default function DashboardPage() {
     return (
         <div className="flex h-screen bg-gray-100">
             <Sidebar />
@@ -26,9 +20,9 @@ const DashboardPage = (_props: DashboardPageProps) => {
                         <h3 className="text-gray-700 text-3xl font-medium">Dashboard</h3>
                         <div className="mt-4">
                             <div className="flex flex-wrap -mx-6">
-                                <DashboardCard title="Total Appointments" value= {120} />
-                                <DashboardCard title="Revenue" value={15000} />
-                                <DashboardCard title="Pending Quotes" value= {25} />
+                                <DashboardCard title="Total Appointments" value="120" />
+                                <DashboardCard title="Revenue" value="$15,000" />
+                                <DashboardCard title="Pending Quotes" value="25" />
                             </div>
                         </div>
                         <div className="mt-8">
@@ -55,6 +49,5 @@ const DashboardPage = (_props: DashboardPageProps) => {
                 </main>
             </div>
         </div>
-    );
+    )
 }
-

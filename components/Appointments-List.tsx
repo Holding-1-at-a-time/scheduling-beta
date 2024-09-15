@@ -5,7 +5,7 @@ import { api } from '@/convex/_generated/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from '@/components/SpinnerComponent';
 
 interface Appointment {
     id: string;
@@ -15,12 +15,12 @@ interface Appointment {
     isPaid: boolean;
 }
 
-export function AppointmentList() {
+export const AppointmentList() {
     const [page, setPage] = useState(1);
     const pageSize = 10;
     const { toast } = useToast();
 
-    const appointmentsQuery = useQuery(api.appointments.listPaginated, { page, pageSize });
+    const appointmentsQuery = useQuery(api.appointments.list, { page, pageSize });
     const updateAppointmentStatus = useMutation(api.appointments.updateStatus);
 
     const handleStatusUpdate = async (id: string, newStatus: 'completed' | 'no-show') => {

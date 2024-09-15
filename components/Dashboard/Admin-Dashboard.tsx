@@ -3,7 +3,7 @@
 
 import React from "react";
 import { Protect } from "@clerk/nextjs";
-import DashboardCard from "./dashboard-card";
+import { DashboardCard } from "components/Dashboard/Dashboard-Card";
 
 interface AdminDashboardProps {
   data: {
@@ -13,7 +13,7 @@ interface AdminDashboardProps {
   };
 }
 
-export default function AdminDashboard({ data }: AdminDashboardProps) {
+export function AdminDashboard({ data }: AdminDashboardProps) {
   return (
     <Protect
       permission="org:admin:access"

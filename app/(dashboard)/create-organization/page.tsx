@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { CreateOrganization } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
 import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useToast } from "@/components/ui/use-toast";
+import { useMutation } from '@/convex/react';
 import { toErrorWithMessage } from '@/types';
-import { useMutation } from '@/convex/_generated/react';
+import { CreateOrganization } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
 
 const CreateOrganizationPage: React.FC = () => {
     const router = useRouter();
-    const [isCreating, setIsCreating] = useState(false);
+    const [, setIsCreating] = useState(false);
     const { toast } = useToast();
     const syncOrganization = useMutation('organizations.syncOrganization');
 
