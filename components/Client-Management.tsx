@@ -26,7 +26,9 @@ export const ClientManagement: React.FC = () => {
 
     const handleAddClient = async () => {
         try {
-            if (!userId) throw new Error('User not authenticated')
+            if (!userId){
+                throw new Error('User not authenticated')
+            }            
             await addClient({ tenantId: userId, ...newClient as Required<Client> })
             setIsAddingClient(false)
             setNewClient({})
