@@ -5,7 +5,6 @@ import { Header } from '@/components/Header'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import RevenueChart from '@/components/Revenue-Chart'
 import { Sidebar } from 'lucide-react'
-import { Suspense } from 'react'    
 import React, { Suspense } from 'react'
 import * as AppointmentsListModule from '@/components/Appointments-List';
 import { number } from 'zod'
