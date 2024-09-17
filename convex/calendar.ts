@@ -18,7 +18,11 @@ interface Event {
 // Query to fetch events for a specific date range
 export const getEvents = query({
     args: {
+<<<<<<< HEAD
         tenantId: v.string(),
+=======
+        tenantId: v.id('tenants'),
+>>>>>>> development
         start: v.string(),
         end: v.string(),
     },
@@ -39,7 +43,11 @@ export const getEvents = query({
 // Mutation to add a new event
 export const addEvent = mutation({
     args: {
+<<<<<<< HEAD
         tenantId: v.string(),
+=======
+        tenantId: v.id('tenants'),
+>>>>>>> development
         title: v.string(),
         start: v.string(),
         end: v.string(),
@@ -49,8 +57,13 @@ export const addEvent = mutation({
     },
     handler: async (ctx, args) => {
         const { tenantId, ...eventData } = args
+<<<<<<< HEAD
         const eventId = await ctx.db.insert('events', { tenantId, ...eventData })
         return eventId
+=======
+        return await ctx.db.insert('events', { tenantId, ...eventData });
+
+>>>>>>> development
     },
 })
 
@@ -67,8 +80,13 @@ export const updateEvent = mutation({
     },
     handler: async (ctx, args) => {
         const { eventId, ...updateData } = args
+<<<<<<< HEAD
         const updatedEvent = await ctx.db.patch(eventId, updateData)
         return updatedEvent
+=======
+        return await ctx.db.patch(eventId, updateData);
+
+>>>>>>> development
     },
 })
 

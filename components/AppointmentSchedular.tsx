@@ -34,7 +34,13 @@ export function AppointmentScheduler() {
     const cancelAppointment = useMutation(api.appointments.cancel);
 
     const filteredAppointments = useMemo(() => {
+<<<<<<< HEAD
         if (!appointments) return [];
+=======
+        if (!appointments) {
+            return {}
+        };
+>>>>>>> development
         return appointments.filter((appointment) => {
             const appointmentDate = parseISO(appointment.date);
             const isOnSelectedDate = isValid(appointmentDate) &&
@@ -49,8 +55,16 @@ export function AppointmentScheduler() {
     }, [appointments, selectedDate, searchTerm, statusFilter]);
 
     const handleDateChange = useCallback((date: Date | undefined) => {
+<<<<<<< HEAD
         if (date) setSelectedDate(date);
     }, []);
+=======
+        if (date) {
+            setSelectedDate(date)
+        };
+    },
+                                         
+>>>>>>> development
 
     const handleAppointmentCreate = useCallback(async (appointmentData: Partial<Appointment>) => {
         try {

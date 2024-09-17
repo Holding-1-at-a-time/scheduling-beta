@@ -1,8 +1,13 @@
 // app/appointments/page.tsx
-import AppointmentCalendar from '@/components/appointment-calendar'
-import { getAvailableSlots } from '@/lib/appointments'
+import { AppointmentCalendar } from '@/components/Appointment-Calendar'
 
-export default async function AppointmentBookingPage() {
+interface AppointmentCalendarProps {
+    availableSlots: any;
+}
+import { getAvailableSlots } from '@/lib/appointments'
+import React from 'react'
+
+const AppointmentBookingPage = async () => {
     const availableSlots = await getAvailableSlots()
 
     return (

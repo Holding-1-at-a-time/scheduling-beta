@@ -1,14 +1,23 @@
 // components/vehicle-hotspot-assessment.tsx
 'use client'
 
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react'
 import { useQuery } from 'convex/react'
+=======
+import React, { useEffect, useState, useCallback } from 'react'
+import { useQuery, useMutation } from 'convex/react'
+>>>>>>> development
 import { api } from '@/convex/_generated/api'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Spinner } from "@/components/ui/spinner"
+<<<<<<< HEAD
+=======
+import { toast } from "@/components/ui/use-toast"
+>>>>>>> development
 import { Id } from '@/convex/_generated/dataModel'
 
 interface VehiclePart {
@@ -24,6 +33,7 @@ interface Hotspot {
 }
 
 interface VehicleHotspotAssessmentProps {
+<<<<<<< HEAD
     onAssessment: (assessment: Hotspot[]) => void
 }
 
@@ -31,11 +41,51 @@ export function VehicleHotspotAssessment({ onAssessment }: VehicleHotspotAssessm
     const vehicleParts = useQuery(api.vehicles.list)
     const [activeHotspot, setActiveHotspot] = useState<VehiclePart | null>(null)
     const [assessment, setAssessment] = useState<Hotspot[]>([])
+=======
+    vehicleId: Id<"vehicles">
+    onAssessment: (assessment: Hotspot[]) => void
+}
+
+export function VehicleHotspotAssessment({ vehicleId, onAssessment }: VehicleHotspotAssessmentProps) {
+    const vehicleParts = useQuery(api.vehicleParts.list)
+    const [activeHotspot, setActiveHotspot] = useState<VehiclePart | null>(null)
+    const [assessment, setAssessment] = useState<Hotspot[]>([])
+    const saveAssessment = useMutation(api.assessments.save)
+
+    const handleHotspotClick = useCallback((part: VehiclePart) => {
+        setActiveHotspot(part)
+    }, [])
+
+    const handleIssueSubmit = useCallback(async (issue: string) => {
+        if (activeHotspot) {
+            const newHotspot: Hotspot = { part: activeHotspot.name, issue }
+            const newAssessment = [...assessment.filter(h => h.part !== activeHotspot.name), newHotspot]
+            setAssessment(newAssessment)
+            setActiveHotspot(null)
+
+            try {
+                await saveAssessment({ vehicleId, assessment: newAssessment })
+                toast({
+                    title: "Assessment Saved",
+                    description: `Issue for ${activeHotspot.name} has been recorded.`,
+                })
+            } catch (error) {
+                console.error('Error saving assessment:', error)
+                toast({
+                    title: "Error",
+                    description: "Failed to save assessment. Please try again.",
+                    variant: "destructive",
+                })
+            }
+        }
+    }, [activeHotspot, assessment, saveAssessment, vehicleId])
+>>>>>>> development
 
     useEffect(() => {
         onAssessment(assessment)
     }, [assessment, onAssessment])
 
+<<<<<<< HEAD
     const handleHotspotClick = (part: VehiclePart) => {
         setActiveHotspot(part)
     }
@@ -48,6 +98,8 @@ export function VehicleHotspotAssessment({ onAssessment }: VehicleHotspotAssessm
         }
     }
 
+=======
+>>>>>>> development
     if (vehicleParts === undefined) {
         return <Spinner />
     }
@@ -86,7 +138,14 @@ export function VehicleHotspotAssessment({ onAssessment }: VehicleHotspotAssessm
                                         }
                                     }}
                                 />
+<<<<<<< HEAD
                                 <Button onClick={() => handleIssueSubmit((document.getElementById(`issue-${part._id}`) as HTMLInputElement).value)}>
+=======
+                                <Button onClick={() => {
+                                    const input = document.getElementById(`issue-${part._id}`) as HTMLInputElement
+                                    handleIssueSubmit(input.value)
+                                }}>
+>>>>>>> development
                                     Submit
                                 </Button>
                             </div>

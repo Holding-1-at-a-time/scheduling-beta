@@ -12,7 +12,11 @@ interface AvailabilityCalendarProps {
 
 export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ onDateRangeSelect }) => {
     const startDate = new Date();
+<<<<<<< HEAD
     const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+=======
+    const endDate = new Date(startDate.getTime()  30 * 24 * 60 * 60 * 1000); // 30 days from now
+>>>>>>> development
     const availableSlots = useQuery(api.availability.getAvailableSlots, {
         startDate: startDate.getTime(),
         endDate: endDate.getTime(),
@@ -36,7 +40,11 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ onDa
             await setAvailability({ date: date.getTime(), isAvailable: !isCurrentlyAvailable });
             toast({
                 title: "Availability Updated",
+<<<<<<< HEAD
                 description: `${date.toDateString()} is now ${!isCurrentlyAvailable ? 'available' : 'unavailable'}.`,
+=======
+                description: `${date.toDateString()} is now ${!isCurrentlyAvailable ? 'unavailable' : 'available'}.`,
+>>>>>>> development
             });
         } catch (error) {
             console.error('Error updating availability:', error);
@@ -66,4 +74,8 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ onDa
             className="rounded-md border"
         />
     );
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> development

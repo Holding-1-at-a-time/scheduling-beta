@@ -1,7 +1,7 @@
 // components/profile-form.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -12,32 +12,59 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
+import { Spinner } from '@/components/ui/spinner'
+import { useUser } from '@clerk/nextjs'
 
 const profileSchema = z.object({
     businessName: z.string().min(1, 'Business name is required'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
-    phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+    phone: z.string().regex(/^\?[1-9]\d{1,14}$/, 'Invalid phone number'),
     email: z.string().email('Invalid email address'),
+    website: z.string().url('Invalid website URL').optional().or(z.literal('')),
 })
+
+type ProfileFormData = z.infer<typeof profileSchema>
 
 export default function ProfileForm() {
     const { toast } = useToast()
-    const profile = useQuery(api.profile.get)
+    const { user } = useUser()
+    const tenantId = user?.id
+
+    const profile = useQuery(api.profile.get, tenantId ? { tenantId } : 'skip')
     const updateProfile = useMutation(api.profile.update)
 
-    const form = useForm<z.infer<typeof profileSchema>>({
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const form = useForm<ProfileFormData>({
         resolver: zodResolver(profileSchema),
-        defaultValues: profile || {
+        defaultValues: {
             businessName: '',
             description: '',
             phone: '',
             email: '',
+            website: '',
         },
     })
 
-    const onSubmit = async (data: z.infer<typeof profileSchema>) => {
+    useEffect(() => {
+        if (profile) {
+            form.reset(profile)
+        }
+    }, [profile, form])
+
+    const onSubmit = async (data: ProfileFormData) => {
+        if (!tenantId) {
+            toast({
+                title: 'Error',
+                description: 'You must be logged in to update your profile.',
+                variant: 'destructive',
+            })
+            return
+        }
+
+        setIsSubmitting(true)
         try {
-            await updateProfile(data)
+            await updateProfile({ ...data, tenantId })
             toast({
                 title: 'Profile Updated',
                 description: 'Your profile has been successfully updated.',
@@ -49,11 +76,17 @@ export default function ProfileForm() {
                 description: 'There was an error updating your profile. Please try again.',
                 variant: 'destructive',
             })
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
-    if (!profile) {
-        return <div>Loading...</div>
+    if (!tenantId) {
+        return <div>Please sign in to update your profile.</div>
+    }
+
+    if (profile === undefined) {
+        return <Spinner />
     }
 
     return (
@@ -111,7 +144,23 @@ export default function ProfileForm() {
                         </FormItem>
                     )}
                 />
-                <Button type="submit">Update Profile</Button>
+                <FormField
+                    control={form.control}
+                    name="website"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Website (Optional)</FormLabel>
+                            <FormControl>
+                                <Input {...field} type="url" />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? <Spinner className="mr-2" /> : null}
+                    Update Profile
+                </Button>
             </form>
         </Form>
     )

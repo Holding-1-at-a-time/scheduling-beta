@@ -16,6 +16,7 @@ export const getServicePopularity = query({
       .filter(q => q.eq(q.field('tenantId'), tenantId))
       .collect()
 
+<<<<<<< HEAD
     const servicePopularity = services.map(service => ({
       serviceName: service.name,
       count: appointments.filter(apt => apt.serviceId === service._id).length
@@ -24,6 +25,12 @@ export const getServicePopularity = query({
     return servicePopularity
   },
 })
+=======
+     return services.map(service => ({
+	          serviceName: service.name,
+	          count: appointments.filter(apt => apt.serviceId === service._id).length
+	        }));
+>>>>>>> development
 
 export const getRevenueData = query({
   args: { tenantId: v.string() },
@@ -37,7 +44,11 @@ export const getRevenueData = query({
 
     const revenueData = appointments.reduce((acc, apt) => {
       const date = new Date(apt.date).toISOString().split('T')[0]
+<<<<<<< HEAD
       acc[date] = (acc[date] || 0) + apt.revenue
+=======
+      acc[date] = (acc[date] || 0)  apt.revenue
+>>>>>>> development
       return acc
     }, {} as Record<string, number>)
 
@@ -65,7 +76,11 @@ export const getCustomerRetention = query({
       if (customerAppointments.length > 1) {
         const lastAppointmentDate = new Date(Math.max(...customerAppointments.map(apt => new Date(apt.date).getTime())))
         const date = lastAppointmentDate.toISOString().split('T')[0]
+<<<<<<< HEAD
         acc[date] = (acc[date] || 0) + 1
+=======
+        acc[date] = (acc[date] || 0)  1
+>>>>>>> development
       }
       return acc
     }, {} as Record<string, number>)
@@ -77,4 +92,8 @@ export const getCustomerRetention = query({
       retentionRate: count / totalCustomers
     }))
   },
+<<<<<<< HEAD
 })
+=======
+})
+>>>>>>> development

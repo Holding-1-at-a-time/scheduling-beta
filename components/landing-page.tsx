@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+// components/landing-page.tsx
+>>>>>>> development
 'use client'
 
 import { useState } from 'react'
@@ -8,11 +12,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+<<<<<<< HEAD
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+=======
+>>>>>>> development
 import { Switch } from "@/components/ui/switch"
 import { Calendar, Clock, Users, Lock, BarChart, MessageSquare, Zap, RefreshCw, Layers, Shield, Check, ChevronRight, Star } from 'lucide-react'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
+<<<<<<< HEAD
 
 // Simulating Convex integration
 const saveToConvex = async (data) => {
@@ -25,11 +33,79 @@ export function LandingPageComponent() {
   const [activeFeature, setActiveFeature] = useState('scheduling')
   const [isSignUpOpen, setIsSignUpOpen] = useState(false)
   const [isAnnualBilling, setIsAnnualBilling] = useState(false)
+=======
+import { toast } from "@/components/ui/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+
+const features = [
+  { id: 'scheduling', icon: Calendar, title: 'AI-Powered Scheduling', description: 'Optimize appointments with machine learning' },
+  { id: 'customer', icon: Users, title: 'Customer Management', description: 'Securely store and manage customer data' },
+  { id: 'notifications', icon: MessageSquare, title: 'Smart Notifications', description: 'Automated, multi-channel reminders' },
+  { id: 'integration', icon: RefreshCw, title: 'Calendar Syncing', description: 'Seamless integration with popular calendars' },
+  { id: 'analytics', icon: BarChart, title: 'Analytics Dashboard', description: 'Actionable insights for your business' },
+  { id: 'security', icon: Shield, title: 'Enterprise-Grade Security', description: 'Protect your data with advanced encryption' },
+]
+
+const pricingTiers = [
+  {
+    name: 'Starter',
+    monthlyPrice: 29,
+    yearlyPrice: 290,
+    description: 'Perfect for independent detailers',
+    features: ['Up to 100 appointments/month', 'Basic AI scheduling', 'Email support', 'Customer management'],
+  },
+  {
+    name: 'Pro',
+    monthlyPrice: 99,
+    yearlyPrice: 990,
+    description: 'Ideal for growing detailing businesses',
+    features: ['Unlimited appointments', 'Advanced AI scheduling', 'Priority support', 'Team management', 'Custom branding'],
+  },
+  {
+    name: 'Enterprise',
+    monthlyPrice: 299,
+    yearlyPrice: 2990,
+    description: 'For large-scale detailing operations',
+    features: ['All Pro features', 'Dedicated account manager', 'API access', 'Advanced analytics', 'Custom integrations'],
+  },
+]
+
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  business: z.string().min(2, {
+    message: "Business name must be at least 2 characters.",
+  }),
+  size: z.enum(["solo", "small", "medium", "large"], {
+    required_error: "Please select a business size.",
+  }),
+  interests: z.enum(["scheduling", "customer", "notifications", "integration", "analytics", "security"], {
+    required_error: "Please select your primary interest.",
+  }),
+  message: z.string().optional(),
+  terms: z.boolean().refine(value => value === true, {
+    message: "You must agree to the terms and conditions.",
+  }),
+})
+
+export function LandingPageComponent() {
+  const [activeFeature, setActiveFeature] = useState('scheduling')
+  const [isAnnualBilling, setIsAnnualBilling] = useState(false)
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
+>>>>>>> development
 
   const { scrollYProgress } = useScroll()
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
 
+<<<<<<< HEAD
   const features = [
     { id: 'scheduling', icon: Calendar, title: 'AI-Powered Scheduling', description: 'Optimize appointments with machine learning' },
     { id: 'customer', icon: Users, title: 'Customer Management', description: 'Securely store and manage customer data' },
@@ -72,6 +148,29 @@ export function LandingPageComponent() {
       alert('Thank you for your interest! We\'ll be in touch soon.')
       setIsSignUpOpen(false)
     }
+=======
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      business: "",
+      size: "solo",
+      interests: "scheduling",
+      message: "",
+      terms: false,
+    },
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Here you would typically send this data to your backend
+    console.log(values)
+    toast({
+      title: "Submission Received",
+      description: "Thank you for your interest! We'll be in touch soon.",
+    })
+    setIsSignUpOpen(false)
+>>>>>>> development
   }
 
   return (
@@ -293,6 +392,7 @@ export function LandingPageComponent() {
               Be among the first to access our AI-powered platform when it launches. Your input will help shape the future of DetailSync.
             </DialogDescription>
           </DialogHeader>
+<<<<<<< HEAD
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-gray-200">Full Name</Label>
@@ -347,6 +447,134 @@ export function LandingPageComponent() {
             </div>
             <Button type="submit" className="w-full bg-[#00AE98] hover:bg-[#009B86] text-white">Join Waitlist</Button>
           </form>
+=======
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-gray-700 text-white border-gray-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" className="bg-gray-700 text-white border-gray-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="business"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-gray-700 text-white border-gray-600" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="size"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Size</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-gray-700 text-white border-gray-600">
+                          <SelectValue placeholder="Select business size" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-gray-700 text-white">
+                        <SelectItem value="solo">Solo Detailer</SelectItem>
+                        <SelectItem value="small">Small Team (2-5)</SelectItem>
+                        <SelectItem value="medium">Medium (6-20)</SelectItem>
+                        <SelectItem value="large">Large (21)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="interests"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Most Interested Feature</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-gray-700 text-white border-gray-600">
+                          <SelectValue placeholder="Select primary interest" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-gray-700 text-white">
+                        {features.map(feature => (
+                          <SelectItem key={feature.id} value={feature.id}>{feature.title}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Additional Information (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Tell us about your current challenges or what you're looking for in a scheduling solution."
+                        className="bg-gray-700 text-white border-gray-600"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="terms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        I agree to the <Link href="#" className="text-[#00AE98] hover:underline">Terms of Service</Link> and <Link href="#" className="text-[#00AE98] hover:underline">Privacy Policy</Link>
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full bg-[#00AE98] hover:bg-[#009B86] text-white">Join Waitlist</Button>
+            </form>
+          </Form>
+>>>>>>> development
           <p className="text-xs text-gray-400 mt-4">
             We respect your privacy and will never share your information with third parties. You can unsubscribe at any time.
           </p>

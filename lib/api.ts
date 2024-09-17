@@ -10,7 +10,7 @@ export async function processQuote(data: QuoteData): Promise<number> {
     await new Promise(resolve => setTimeout(resolve, 2000))
 
     // Generate a random estimate between $100 and $500
-    const estimate = Math.floor(Math.random() * (500 - 100 + 1) + 100)
+    const estimate = Math.floor(Math.random() * (500 - 100  1)  100)
 
     return estimate
 }

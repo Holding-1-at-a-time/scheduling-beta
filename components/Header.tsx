@@ -8,7 +8,11 @@ import { Button } from '@/components/ui/button'
 import { MountainIcon, SunIcon, MoonIcon } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 
+<<<<<<< HEAD
 export default function Header() {
+=======
+export function Header() {
+>>>>>>> development
   const { theme, setTheme } = useTheme()
 
   return (

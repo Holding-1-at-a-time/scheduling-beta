@@ -2,7 +2,8 @@
 import { mutation, query } from './_generated/server'
 import { v } from 'convex/values'
 
-export const list = query({
+
+export const listServices = query({
     args: {},
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity()
@@ -17,7 +18,7 @@ export const list = query({
     },
 })
 
-export const add = mutation({
+export const addServices = mutation({
     args: {
         name: v.string(),
         description: v.string(),
@@ -34,7 +35,7 @@ export const add = mutation({
     },
 })
 
-export const update = mutation({
+export const updateServices = mutation({
     args: {
         id: v.id('services'),
         name: v.string(),
@@ -57,7 +58,7 @@ export const update = mutation({
     },
 })
 
-export const remove = mutation({
+export const removeServices = mutation({
     args: { id: v.id('services') },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity()
@@ -70,6 +71,7 @@ export const remove = mutation({
 
         await ctx.db.delete(args.id)
     },
+<<<<<<< HEAD
 })
 
 
@@ -125,3 +127,7 @@ export const updateService = mutation({
         await ctx.db.patch(serviceId, updates);
     },
 });
+=======
+});
+
+>>>>>>> development

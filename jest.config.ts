@@ -69,7 +69,11 @@ const config: Config = {
   // A set of global variables that need to be available in all test environments
   // globals: {},
 
+<<<<<<< HEAD
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
+=======
+  // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount  1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
+>>>>>>> development
   // maxWorkers: "50%",
 
   // An array of directory names to be searched recursively up from the requiring module's location
@@ -157,7 +161,11 @@ const config: Config = {
   // The glob patterns Jest uses to detect test files
   // testMatch: [
   //   "**/__tests__/**/*.[jt]s?(x)",
+<<<<<<< HEAD
   //   "**/?(*.)+(spec|test).[tj]s?(x)"
+=======
+  //   "**/?(*.)(spec|test).[tj]s?(x)"
+>>>>>>> development
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
@@ -180,7 +188,11 @@ const config: Config = {
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [
   //   "\\\\node_modules\\\\",
+<<<<<<< HEAD
   //   "\\.pnp\\.[^\\\\]+$"
+=======
+  //   "\\.pnp\\.[^\\\\]$"
+>>>>>>> development
   // ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

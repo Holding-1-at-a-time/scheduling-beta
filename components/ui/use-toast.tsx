@@ -28,7 +28,11 @@ const actionTypes = {
 let count = 0
 
 function genId() {
+<<<<<<< HEAD
   count = (count + 1) % Number.MAX_SAFE_INTEGER
+=======
+  count = (count  1) % Number.MAX_SAFE_INTEGER
+>>>>>>> development
   return count.toString()
 }
 
@@ -36,6 +40,7 @@ type ActionType = typeof actionTypes
 
 type Action =
   | {
+<<<<<<< HEAD
       type: ActionType["ADD_TOAST"]
       toast: ToasterToast
     }
@@ -51,6 +56,23 @@ type Action =
       type: ActionType["REMOVE_TOAST"]
       toastId?: ToasterToast["id"]
     }
+=======
+    type: ActionType["ADD_TOAST"]
+    toast: ToasterToast
+  }
+  | {
+    type: ActionType["UPDATE_TOAST"]
+    toast: Partial<ToasterToast>
+  }
+  | {
+    type: ActionType["DISMISS_TOAST"]
+    toastId?: ToasterToast["id"]
+  }
+  | {
+    type: ActionType["REMOVE_TOAST"]
+    toastId?: ToasterToast["id"]
+  }
+>>>>>>> development
 
 interface State {
   toasts: ToasterToast[]
@@ -93,6 +115,7 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
+<<<<<<< HEAD
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
@@ -114,6 +137,17 @@ export const reducer = (state: State, action: Action): State => {
             : t
         ),
       }
+=======
+      if (toastId) {
+        dispatch({ type: "REMOVE_TOAST", toastId })
+      } else {
+        state.toasts.forEach((toast) => {
+          dispatch({ type: "REMOVE_TOAST", toastId: toast.id })
+        })
+      }
+
+      return state
+>>>>>>> development
     }
     case "REMOVE_TOAST":
       if (action.toastId === undefined) {
@@ -159,7 +193,13 @@ function toast({ ...props }: Toast) {
       id,
       open: true,
       onOpenChange: (open) => {
+<<<<<<< HEAD
         if (!open) dismiss()
+=======
+        if (!open) {
+          dismiss()
+        }
+>>>>>>> development
       },
     },
   })
@@ -172,10 +212,17 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast(p0?: {
+<<<<<<< HEAD
         title:
         // Inspired by react-hot-toast library
         string
     }) {
+=======
+  title:
+  // Inspired by react-hot-toast library
+  string
+}) {
+>>>>>>> development
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {

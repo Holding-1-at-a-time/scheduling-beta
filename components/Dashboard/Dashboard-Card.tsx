@@ -17,7 +17,11 @@ interface DashboardCardProps {
   onAction: () => void;
 }
 
+<<<<<<< HEAD
 export default function DashboardCard({ title, description, stats, action, onAction }: DashboardCardProps) {
+=======
+export function DashboardCard({ title, description, stats, action, onAction }: DashboardCardProps) {
+>>>>>>> development
   return (
     <Card className="bg-[#00AE98] text-primary-foreground shadow-lg hover:shadow-2xl transition-shadow duration-300">
       <CardHeader>
