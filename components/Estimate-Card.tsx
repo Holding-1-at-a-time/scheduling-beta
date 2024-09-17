@@ -46,7 +46,7 @@ export function EstimateCard({
       <CardHeader>
         <CardTitle>Estimate #{estimate.number}</CardTitle>
         <CardDescription className={getStatusColor(estimate.status)}>
-          {estimate.status.charAt(0).toUpperCase() + estimate.status.slice(1)}
+          {estimate.status.charAt(0).toUpperCase()  estimate.status.slice(1)}
         </CardDescription>
       </CardHeader>
       <CardContent>

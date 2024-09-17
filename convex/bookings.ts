@@ -10,16 +10,16 @@ export const getPreviousServices = query({
     },
     handler: async (ctx, args) => {
         const { vehicleId, userId, organizationId } = args
-        const services = await ctx.db
-            .query('services')
-            .filter(q =>
-                q.eq(q.field('vehicleId'), vehicleId) &&
-                q.eq(q.field('userId'), userId) &&
-                q.eq(q.field('organizationId'), organizationId)
-            )
-            .order('desc')
-            .take(10)
-        return services
+        return await ctx.db
+                    .query('services')
+                    .filter(q =>
+                        q.eq(q.field('vehicleId'), vehicleId) &&
+                        q.eq(q.field('userId'), userId) &&
+                        q.eq(q.field('organizationId'), organizationId)
+                    )
+                    .order('desc')
+                    .take(10);
+
     },
 })
 
@@ -36,15 +36,18 @@ export const createBooking = mutation({
     },
     handler: async (ctx, args) => {
         const { serviceId, vehicleId, userId, organizationId, slot } = args
-        const bookingId = await ctx.db.insert('bookings', {
-            serviceId,
-            vehicleId,
-            userId,
-            organizationId,
-            slot,
-            status: 'confirmed',
-            createdAt: new Date().toISOString(),
-        })
-        return bookingId
+        return {
+            await ctx.db.insert('bookings', {
+                    serviceId,
+                    vehicleId,
+                    userId,
+                    organizationId,
+                    slot,
+                    status: 'confirmed',
+                    createdAt: new Date().toISOString(),
+            }
+        }
+    }
+);
     },
 })

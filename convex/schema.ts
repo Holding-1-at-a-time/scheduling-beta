@@ -147,6 +147,7 @@ export default defineSchema({
         date: v.number(),
         time: v.number(),
         status: v.union(
+            v.literal("scheduled"),
             v.literal("canceled"),
             v.literal("pending"),
             v.literal("completed"),

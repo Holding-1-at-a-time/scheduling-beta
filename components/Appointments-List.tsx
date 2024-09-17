@@ -4,7 +4,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { toast, useToast } from '@/components/ui/use-toast';
 import { Spinner } from '@/components/SpinnerComponent';
 
 interface Appointment {
@@ -15,16 +15,35 @@ interface Appointment {
     isPaid: boolean;
 }
 
-export const AppointmentList() {
+export const AppointmentList = ()=> {
+    const [page, setPage] = useState(1);  
+    const handlePageChange = (newPage: number) => {  
+        if (newPage > 0) {  
+            setPage(newPage);  
+        } else {  
+            toast({ title: "Invalid page number", description: "Page number must be positive" });  
+        }  
+    };
+    const handlePageSizeChange = (newSize: number) => {
+        if (newSize > 0) {
+            setPageSize(newSize);
+            setPage(1); // Reset to first page when changing page size
+        } else {
+            toast({
+                title: "Invalid page size",
+                description: "Page size must be positive",
+                variant: "destructive",
+            });
+        }
+    };
     const [page, setPage] = useState(1);
-const handlePageChange = (newPage: number) => {
-    if (newPage > 0) {
-        setPage(newPage);
-    } else {
-        toast({ title: "Invalid page number", description: "Page number must be positive" });
-    }
-};
-
+    const handlePageChange = (newPage: number) => {
+        if (newPage > 0) {
+            setPage(newPage);
+        } else {
+            toast({ title: "Invalid page number", description: "Page number must be positive" });
+        }
+    };
     const appointmentsQuery = useQuery(api.appointments.list, { page, pageSize });
     const updateAppointmentStatus = useMutation(api.appointments.updateStatus);
 
@@ -96,7 +115,7 @@ const handlePageChange = (newPage: number) => {
                 <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
                     Previous
                 </Button>
-                <Button onClick={() => setPage(p => p + 1)} disabled={!hasMore}>
+                <Button onClick={() => setPage(p => p  1)} disabled={!hasMore}>
                     Next
                 </Button>
             </div>

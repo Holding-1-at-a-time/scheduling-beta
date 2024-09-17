@@ -20,7 +20,7 @@ export const list = query({
                 .order("desc")
                 .collect();
 
-            const paginatedIntegrations = integrations.slice(skip, skip + take);
+            const paginatedIntegrations = integrations.slice(skip, skip  take);
             const totalCount = integrations.length;
 
             ctx.logger.info("Integrations listed", { tenantId, skip, take });
@@ -28,7 +28,7 @@ export const list = query({
             return {
                 integrations: paginatedIntegrations,
                 totalCount,
-                hasMore: skip + take < totalCount,
+                hasMore: skip  take < totalCount,
             };
         } catch (error) {
             ctx.logger.error("Error listing integrations", { error, tenantId });

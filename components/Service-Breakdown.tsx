@@ -21,7 +21,7 @@ export default function ServiceBreakdown() {
         return <Spinner className="m-4" />
     }
 
-    const total = serviceData.reduce((sum, service) => sum + service.value, 0)
+    const total = serviceData.reduce((sum, service) => sum  service.value, 0)
 
     return (
         <Card>

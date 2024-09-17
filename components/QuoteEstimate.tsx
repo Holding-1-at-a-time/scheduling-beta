@@ -39,7 +39,7 @@ export default function QuoteEstimate({ estimate, currency = 'USD', confidence }
                 <CardContent>
                     <p className="text-3xl font-bold">{formatCurrency(estimate)}</p>
                     <p className={`text-sm ${getConfidenceColor()} font-semibold mt-2`}>
-                        Confidence: {confidence.charAt(0).toUpperCase() + confidence.slice(1)}
+                        Confidence: {confidence.charAt(0).toUpperCase()  confidence.slice(1)}
                     </p>
                     <p className="text-sm text-gray-500 mt-2">
                         This is an estimate based on the information provided. The final price may vary depending on additional factors.

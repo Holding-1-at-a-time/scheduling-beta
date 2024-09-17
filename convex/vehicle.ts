@@ -43,22 +43,22 @@ export const add = mutation({
         const { make, model, year, image, vin, vehicleId: newVehicleId, clientId, tenantId } = args;
 
         // Validate input
-        if (year < 1900 || year > new Date().getFullYear() + 1) {
+        if (year < 1900 || year > new Date().getFullYear()  1) {
             throw new Error("Invalid year");
         }
         if (!make || !model || !vin || !image) {
             throw new Error("Missing required fields");
         }
-        if (year < 1900 || year > new Date().getFullYear() + 1)
+        if (year < 1900 || year > new Date().getFullYear()  1)
             throw new Error("Invalid year");
         if (!make || !model || !vin || !image)
             throw new Error("Missing required fields");
-        if (year < 1900 || year > new Date().getFullYear() + 1)
+        if (year < 1900 || year > new Date().getFullYear()  1)
             throw new Error("Invalid year");
         if (!make || !model || !vin || !image)
             throw new Error("Missing required fields");
         // ... (rest of the code remains the same)
-        if (year < 1900 || year > new Date().getFullYear() + 1)
+        if (year < 1900 || year > new Date().getFullYear()  1)
             throw new Error("Invalid year");
         if (!make || !model || !vin || !image)
             throw new Error("Missing required fields");
@@ -121,7 +121,7 @@ export const update = mutation({
         const { id, make, model, year, image } = args;
 
         // Validate input
-        if (year < 1900 || year > new Date().getFullYear() + 1) {
+        if (year < 1900 || year > new Date().getFullYear()  1) {
             throw new Error("Invalid year");
         }
 

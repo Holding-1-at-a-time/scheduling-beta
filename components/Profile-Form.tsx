@@ -18,7 +18,7 @@ import { useUser } from '@clerk/nextjs'
 const profileSchema = z.object({
     businessName: z.string().min(1, 'Business name is required'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
-    phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number'),
+    phone: z.string().regex(/^\?[1-9]\d{1,14}$/, 'Invalid phone number'),
     email: z.string().email('Invalid email address'),
     website: z.string().url('Invalid website URL').optional().or(z.literal('')),
 })

@@ -19,7 +19,7 @@ export function AppointmentCalendar({ customerId, serviceId }: AppointmentCalend
 
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + 1);
+    endDate.setMonth(endDate.getMonth()  1);
 
     const availableSlots = useQuery(api.appointments.getAvailableSlots, {
         startDate: startDate.getTime(),

@@ -12,7 +12,7 @@ interface AvailabilityCalendarProps {
 
 export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ onDateRangeSelect }) => {
     const startDate = new Date();
-    const endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+    const endDate = new Date(startDate.getTime()  30 * 24 * 60 * 60 * 1000); // 30 days from now
     const availableSlots = useQuery(api.availability.getAvailableSlots, {
         startDate: startDate.getTime(),
         endDate: endDate.getTime(),

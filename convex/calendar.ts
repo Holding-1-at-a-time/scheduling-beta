@@ -49,8 +49,8 @@ export const addEvent = mutation({
     },
     handler: async (ctx, args) => {
         const { tenantId, ...eventData } = args
-        const eventId = await ctx.db.insert('events', { tenantId, ...eventData })
-        return eventId
+        return await ctx.db.insert('events', { tenantId, ...eventData });
+
     },
 })
 
@@ -67,8 +67,8 @@ export const updateEvent = mutation({
     },
     handler: async (ctx, args) => {
         const { eventId, ...updateData } = args
-        const updatedEvent = await ctx.db.patch(eventId, updateData)
-        return updatedEvent
+        return await ctx.db.patch(eventId, updateData);
+
     },
 })
 

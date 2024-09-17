@@ -25,7 +25,7 @@ export function AppointmentHistory() {
 
     const handleNextPage = () => {
         loadMore(pageSize);
-        setPage(prevPage => prevPage + 1);
+        setPage(prevPage => prevPage  1);
     };
 
     const handlePreviousPage = () => {

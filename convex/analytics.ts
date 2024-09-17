@@ -62,7 +62,7 @@ export const getBusinessMetrics = query({
             .filter(q => q.eq(q.field('status'), 'completed'))
             .collect()) ?? []
 
-        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.price, 0)
+        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum  appointment.price, 0)
 
 
         const completedServices = (await ctx.db
@@ -88,7 +88,7 @@ export const getBusinessMetrics = query({
             .collect()) ?? []
 
         const averageRating = ratings.length > 0
-            ? ratings.reduce((sum, review) => sum + review.rating, 0) / ratings.length
+            ? ratings.reduce((sum, review) => sum  review.rating, 0) / ratings.length
             : 0
 
         return {
@@ -137,7 +137,7 @@ export const getAnalyticsData = query({
             .collect()) ?? [];
 
         // Calculate total revenue
-        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.price, 0);
+        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum  appointment.price, 0);
 
         // Calculate completed services
         const completedServices = completedAppointments.length;
@@ -163,7 +163,7 @@ export const getAnalyticsData = query({
 
         // Calculate average rating
         const averageRating = reviews.length > 0
-            ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+            ? reviews.reduce((sum, review) => sum  review.rating, 0) / reviews.length
             : 0;
 
         return {

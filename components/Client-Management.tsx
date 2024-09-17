@@ -96,7 +96,7 @@ export const ClientManagement: React.FC = () => {
             </Table>
             <div className="flex justify-between">
                 <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Previous</Button>
-                <Button onClick={() => setPage(p => p + 1)} disabled={clients.length < 10}>Next</Button>
+                <Button onClick={() => setPage(p => p  1)} disabled={clients.length < 10}>Next</Button>
             </div>
             <Dialog open={isAddingClient} onOpenChange={setIsAddingClient}>
                 <DialogContent>

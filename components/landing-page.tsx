@@ -382,7 +382,7 @@ export function LandingPageComponent() {
                         <SelectItem value="solo">Solo Detailer</SelectItem>
                         <SelectItem value="small">Small Team (2-5)</SelectItem>
                         <SelectItem value="medium">Medium (6-20)</SelectItem>
-                        <SelectItem value="large">Large (21+)</SelectItem>
+                        <SelectItem value="large">Large (21)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -68,7 +68,7 @@ export const totalRevenue = query({
             .query('services')
             .filter(q => q.eq(q.field('tenantId'), tenantId) && q.eq(q.field('name'), servicesName))
             .collect()
-        return services.reduce((acc, s) => acc + s.price, 0)
+        return services.reduce((acc, s) => acc  s.price, 0)
     },
 });
 

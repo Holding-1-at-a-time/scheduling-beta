@@ -33,7 +33,7 @@ async function fetchAppointmentDetails(appointmentId: string) {
     // This is a placeholder and should be replaced with actual Convex query
     return {
         date: new Date(),
-        clientPhone: '+1234567890',
+        clientPhone: '1234567890',
         clientEmail: 'client@example.com',
     }
 }

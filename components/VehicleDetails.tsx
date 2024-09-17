@@ -64,7 +64,7 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleDetails }
                                 <Image
                                     key={index}
                                     src={image}
-                                    alt={`${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model} - Image ${index + 1}`}
+                                    alt={`${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model} - Image ${index  1}`}
                                     width={400}
                                     height={300}
                                     className="object-cover rounded-lg"

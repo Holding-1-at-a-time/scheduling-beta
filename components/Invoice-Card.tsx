@@ -43,7 +43,7 @@ export function InvoiceCard({ invoiceId }: InvoiceCardProps) {
       <CardHeader>
         <CardTitle>Invoice #{invoice.number}</CardTitle>
         <CardDescription className={getStatusColor(invoice.status)}>
-          {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+          {invoice.status.charAt(0).toUpperCase()  invoice.status.slice(1)}
         </CardDescription>
       </CardHeader>
       <CardContent>

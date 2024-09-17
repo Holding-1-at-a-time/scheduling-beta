@@ -10,13 +10,13 @@ export const addConditionDetail = mutation({
     },
     handler: async (ctx, args) => {
         const { tenantId, hotspotId, issueType, severity } = args
-        const newConditionDetail = await ctx.db.insert('conditionDetails', {
-            tenantId,
-            hotspotId,
-            issueType,
-            severity,
-            createdAt: new Date().toISOString(),
-        })
-        return newConditionDetail
+        return await ctx.db.insert('conditionDetails', {
+                    tenantId,
+                    hotspotId,
+                    issueType,
+                    severity,
+                    createdAt: new Date().toISOString(),
+                });
+
     },
 })

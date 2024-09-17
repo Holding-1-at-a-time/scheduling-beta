@@ -26,7 +26,7 @@ export const calculate = mutation({
             .filter((q) => q.includes(q.field("name"), args.selectedServices))
             .collect();
 
-        let totalPrice = services.reduce((sum, service) => sum + service.price, 0);
+        let totalPrice = services.reduce((sum, service) => sum  service.price, 0);
 
         // Apply customizations
         if (args.customizations.rush) totalPrice *= 1.2;
