@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 // components/landing-page.tsx
->>>>>>> development
 'use client'
 
 import { useState } from 'react'
@@ -12,28 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-<<<<<<< HEAD
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-=======
->>>>>>> development
 import { Switch } from "@/components/ui/switch"
 import { Calendar, Clock, Users, Lock, BarChart, MessageSquare, Zap, RefreshCw, Layers, Shield, Check, ChevronRight, Star } from 'lucide-react'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
-<<<<<<< HEAD
-
-// Simulating Convex integration
-const saveToConvex = async (data) => {
-  console.log('Saving to Convex:', data)
-  // In a real implementation, this would be a call to Convex's API
-  return new Promise(resolve => setTimeout(() => resolve({ success: true }), 1000))
-}
-
-export function LandingPageComponent() {
-  const [activeFeature, setActiveFeature] = useState('scheduling')
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
-  const [isAnnualBilling, setIsAnnualBilling] = useState(false)
-=======
 import { toast } from "@/components/ui/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -99,56 +78,11 @@ export function LandingPageComponent() {
   const [activeFeature, setActiveFeature] = useState('scheduling')
   const [isAnnualBilling, setIsAnnualBilling] = useState(false)
   const [isSignUpOpen, setIsSignUpOpen] = useState(false)
->>>>>>> development
 
   const { scrollYProgress } = useScroll()
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
 
-<<<<<<< HEAD
-  const features = [
-    { id: 'scheduling', icon: Calendar, title: 'AI-Powered Scheduling', description: 'Optimize appointments with machine learning' },
-    { id: 'customer', icon: Users, title: 'Customer Management', description: 'Securely store and manage customer data' },
-    { id: 'notifications', icon: MessageSquare, title: 'Smart Notifications', description: 'Automated, multi-channel reminders' },
-    { id: 'integration', icon: RefreshCw, title: 'Calendar Syncing', description: 'Seamless integration with popular calendars' },
-    { id: 'analytics', icon: BarChart, title: 'Analytics Dashboard', description: 'Actionable insights for your business' },
-    { id: 'security', icon: Shield, title: 'Enterprise-Grade Security', description: 'Protect your data with advanced encryption' },
-  ]
-
-  const pricingTiers = [
-    {
-      name: 'Starter',
-      monthlyPrice: 29,
-      yearlyPrice: 290,
-      description: 'Perfect for independent detailers',
-      features: ['Up to 100 appointments/month', 'Basic AI scheduling', 'Email support', 'Customer management'],
-    },
-    {
-      name: 'Pro',
-      monthlyPrice: 99,
-      yearlyPrice: 990,
-      description: 'Ideal for growing detailing businesses',
-      features: ['Unlimited appointments', 'Advanced AI scheduling', 'Priority support', 'Team management', 'Custom branding'],
-    },
-    {
-      name: 'Enterprise',
-      monthlyPrice: 299,
-      yearlyPrice: 2990,
-      description: 'For large-scale detailing operations',
-      features: ['All Pro features', 'Dedicated account manager', 'API access', 'Advanced analytics', 'Custom integrations'],
-    },
-  ]
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    const formData = new FormData(event.target)
-    const data = Object.fromEntries(formData.entries())
-    const result = await saveToConvex(data)
-    if (result.success) {
-      alert('Thank you for your interest! We\'ll be in touch soon.')
-      setIsSignUpOpen(false)
-    }
-=======
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -170,7 +104,6 @@ export function LandingPageComponent() {
       description: "Thank you for your interest! We'll be in touch soon.",
     })
     setIsSignUpOpen(false)
->>>>>>> development
   }
 
   return (
@@ -392,62 +325,6 @@ export function LandingPageComponent() {
               Be among the first to access our AI-powered platform when it launches. Your input will help shape the future of DetailSync.
             </DialogDescription>
           </DialogHeader>
-<<<<<<< HEAD
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-gray-200">Full Name</Label>
-              <Input id="name" name="name" placeholder="John Doe" required className="bg-gray-700 text-white border-gray-600" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-200">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="john@example.com" required className="bg-gray-700 text-white border-gray-600" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="business" className="text-gray-200">Business Name</Label>
-              <Input id="business" name="business" placeholder="Awesome Auto Detailing" required className="bg-gray-700 text-white border-gray-600" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="size" className="text-gray-200">Business Size</Label>
-              <Select name="size" required>
-                <SelectTrigger className="bg-gray-700 text-white border-gray-600">
-                  <SelectValue placeholder="Select business size" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-700 text-white">
-                  <SelectItem value="solo">Solo Detailer</SelectItem>
-                  <SelectItem value="small">Small Team (2-5)</SelectItem>
-                  <SelectItem value="medium">Medium (6-20)</SelectItem>
-                  <SelectItem value="large">Large (21+)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="interests" className="text-gray-200">Most Interested Feature</Label>
-              <Select name="interests" required>
-                <SelectTrigger className="bg-gray-700 text-white border-gray-600">
-                  <SelectValue placeholder="Select primary interest" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-700 text-white">
-                  {features.map(feature => (
-                    <SelectItem key={feature.id} value={feature.id}>{feature.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="message" className="text-gray-200">Additional Information (Optional)</Label>
-              <Textarea id="message" name="message" placeholder="Tell us about your current challenges or what you're looking for in a scheduling solution." className="bg-gray-700 text-white border-gray-600" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="terms" name="terms" required />
-                <label htmlFor="terms" className="text-sm text-gray-300">
-                  I agree to the <Link href="#" className="text-[#00AE98] hover:underline">Terms of Service</Link> and <Link href="#" className="text-[#00AE98] hover:underline">Privacy Policy</Link>
-                </label>
-              </div>
-            </div>
-            <Button type="submit" className="w-full bg-[#00AE98] hover:bg-[#009B86] text-white">Join Waitlist</Button>
-          </form>
-=======
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -574,7 +451,6 @@ export function LandingPageComponent() {
               <Button type="submit" className="w-full bg-[#00AE98] hover:bg-[#009B86] text-white">Join Waitlist</Button>
             </form>
           </Form>
->>>>>>> development
           <p className="text-xs text-gray-400 mt-4">
             We respect your privacy and will never share your information with third parties. You can unsubscribe at any time.
           </p>
