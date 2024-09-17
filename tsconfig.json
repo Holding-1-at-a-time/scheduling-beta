@@ -8,7 +8,6 @@
     "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "allowNonTsExtensions": true,
     "noFallthroughCasesInSwitch": true,
     "alwaysStrict": true,
     "strictNullChecks": true,

@@ -10,7 +10,7 @@ interface Vehicle {
     make: string;
     model: string;
     year: number;
-    createdAt: string; 
+    createdAt: string;
     updatedAt: string;
 }
 
@@ -135,5 +135,33 @@ export const validateVIN = mutation({
         // to verify the VIN and get additional vehicle information
 
         return true;
+    },
+});
+
+
+export const onScan = mutation({
+    args: { vin: String },
+    handler: async ({ db, auth }, { vin }) => {
+        // Get the current user's ID
+        const userId = await auth.getUserIdentity()?.id;
+        if (!userId) {
+            throw new Error("Unauthorized");
+        }
+
+        // Validate the VIN
+        const isValid = await validateVIN({ vin });
+        if (!isValid) {
+            throw new Error("Invalid VIN");
+        }
+
+        // Save the scanned VIN to the database
+        const vinDoc = await db.insert("vin", {
+            vin,
+            userId,
+            scannedAt: new Date(),
+        });
+
+        // Return the saved VIN document
+        return vinDoc;
     },
 });

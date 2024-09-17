@@ -123,3 +123,54 @@ export const getThirtyDayRevenueData = query({
         const revenueByDate = appointments.reduce
     }
 });
+
+export const getAnalyticsData = query({
+    args: {
+        tenantId: v.id('tenants'),
+    },
+    async handler(ctx, { tenantId }) {
+        // Fetch completed appointments for the tenant
+        const completedAppointments = (await ctx.db
+            .query('appointments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .filter(q => q.eq(q.field('status'), 'completed'))
+            .collect()) ?? [];
+
+        // Calculate total revenue
+        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.price, 0);
+
+        // Calculate completed services
+        const completedServices = completedAppointments.length;
+
+        // Calculate no shows
+        const noShows = (await ctx.db
+            .query('appointments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .filter(q => q.eq(q.field('status'), 'no-show'))
+            .count()) ?? 0;
+
+        // Calculate total appointments
+        const totalAppointments = (await ctx.db
+            .query('appointments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .count()) ?? 0;
+
+        // Fetch reviews for the tenant
+        const reviews = (await ctx.db
+            .query('reviews')
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .collect()) ?? [];
+
+        // Calculate average rating
+        const averageRating = reviews.length > 0
+            ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+            : 0;
+
+        return {
+            totalRevenue,
+            completedServices,
+            noShowRate: totalAppointments > 0 ? noShows / totalAppointments : 0,
+            averageRating,
+        };
+    },
+});

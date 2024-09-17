@@ -65,17 +65,19 @@ export default defineSchema({
 
     tenants: defineTable({
         tenantId: v.id('tenants'),
-        name: v.string(),
-        email: v.string(),
-        phone: v.string(),
-        address: v.string(),
-        city: v.string(),
-        state: v.string(),
-        zip: v.string(),
-    }).index("by_email", ["email"])
-        .index("by_phone", ["phone"])
-        .index("by_name", ["name"])
-        .index("by_address", ["address", "city", "state", "zip"]),
+        tenantName: v.string(),
+        tenantEmail: v.string(),
+        tenantPhone: v.string(),
+        tenantAddress: v.array(v.object({
+            city: v.string(),
+            State: v.string(),
+            Zip: v.string(),
+        }))
+    })
+        .index("by_email", ["tenantEmail"])
+        .index("by_phone", ["tenantPhone"])
+        .index("by_name", ["tenantName"])
+        .index("by_address", ["tenantAddress"]),
 
     clients: defineTable({
         tenantId: v.id('tenants'),
@@ -139,14 +141,39 @@ export default defineSchema({
         .index("by_tenant_and_date", ["tenantId", "date"]),
 
     appointments: defineTable({
+        appointmentId: v.id('appointments'),
         tenantId: v.id('tenants'),
         userId: v.id('users'),
         date: v.number(),
-        status: v.string(),
+        time: v.number(),
+        status: v.union(
+            v.literal("canceled"),
+            v.literal("pending"),
+            v.literal("completed"),
+            v.literal("no_show"),
+            v.literal("rescheduled"),
+            v.literal("required"),
+        ),
         details: v.string(),
-        customerId: v.string(),
-        serviceId: v.string(),
+        clientsId: v.id('clients'),
+        serviceId: v.id('services'),
+        serviceName: v.string(),
+        servicePrice: v.number(),
+        serviceDuration: v.number(),
+        serviceDescription: v.string(),
+        serviceImage: v.string(),
+        clientName: v.string(),
+        clientEmail: v.string(),
+        clientPhone: v.string(),
+        clientAddress: v.string(),
+        clientCity: v.string(),
+        clientState: v.string(),
+        clientZip: v.string(),
     })
+        .index("by_tenant_and_date", ["tenantId", "date"])
+        .index("by_tenant_and_time", ["tenantId", "time"])
+        .index("by_date_clientName_serviceName_time", ["date", "clientName", "serviceName", "time"])
+        .index("by_appointment_clientName", ["appointmentId", "clientName"])
         .index("by_tenant_and_date", ["tenantId", "date"]),
 
     availableSlots: defineTable({
@@ -198,10 +225,12 @@ export default defineSchema({
     vehicles: defineTable({
         tenantId: v.id('tenants'),
         clientId: v.id('clients'),
+        clientName: v.string(),
         vehicleId: v.id("vehicles"),
         make: v.string(),
         model: v.string(),
         year: v.number(),
+        bodyType: v.string(),
         image: v.string(),
         vin: v.string(),
         date: v.number(),
@@ -218,10 +247,61 @@ export default defineSchema({
         make: v.string(),
         model: v.string(),
         year: v.number(),
+        bodyType: v.string(),
         image: v.string(),
-        vin: v.string(),
+        VIN: v.string(),
         embedding: v.array(v.number()),
     })
-        .index("by_embedding", ["embedding"])
-        .index("by_tenantId_and_embedding", ["tenantId", "embedding"]),
+        .vectorIndex("by_embedding", {
+            vectorField: "embedding",
+            dimensions: 1532,
+            filterFields: ['clientName', 'vehicleId', 'VIN'],
+        })
+        .vectorIndex("by_tenantId_and_embedding", {
+            vectorField: "tenantId",
+            dimensions: 1532,
+            filterFields: ["tenantId", "embedding"]
+        }),
+
+    analyticsEmbeddings: defineTable({
+        tenantId: v.id('tenants'),
+        date: v.number(),
+        revenue: v.number(),
+        completedServices: v.number(),
+        newCustomers: v.number(),
+        newAppointments: v.number(),
+        newNoShows: v.number(),
+        completedAppointments: v.number(),
+        completedNoShows: v.number(),
+        noShows: v.number(),
+        appointments: v.number(),
+        customers: v.number(),
+        ratings: v.array(v.number()),
+        availableSlots: v.array(v.number()),
+        embedding: v.array(v.number()),
+    })
+        .vectorIndex("embedding_index", {
+            vectorField: "embedding",
+            dimensions: 1532,
+            filterFields: [
+                'tenantId',
+                'date',
+                'revenue',
+                'completedServices',
+                'newCustomers',
+                'newAppointments',
+                'newNoShows',
+                'completedAppointments',
+                'completedNoShows',
+                'noShows',
+                'appointments',
+                'customers',
+                'ratings',
+                'availableSlots',
+            ],
+        })
+        .index("by_tenant_and_date", ["tenantId", "date"])
+        .index("by_revenue", ["revenue"])
+        .index("by_new_customers", ["newCustomers"])
+        .index("by_new_appointments", ["newAppointments"]),
 });
