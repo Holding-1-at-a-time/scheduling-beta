@@ -18,6 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useMutation } from 'convex/react'
 
 const features = [
   { id: 'scheduling', icon: Calendar, title: 'AI-Powered Scheduling', description: 'Optimize appointments with machine learning' },
@@ -96,14 +98,47 @@ export function LandingPageComponent() {
     },
   })
 
+
+  const saveToConvex = async (data: z.infer<typeof formSchema>) => {
+    try {
+      console.log('Saving to Convex:', data)
+      // Call Convex mutation to save data
+      const { mutate } = useMutation('saveSignUpData');
+      await mutate(data);
+      const response = await fetch('/api/convex', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+      if (!response.ok) {
+        throw new Error('Failed to save data')
+      }
+      const result = await response.json()
+      return result
+    } catch (error) {
+      console.error('Error saving to Convex:', error)
+      throw error
+    }
+  }
+  
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would typically send this data to your backend
-    console.log(values)
-    toast({
-      title: "Submission Received",
-      description: "Thank you for your interest! We'll be in touch soon.",
-    })
-    setIsSignUpOpen(false)
+    saveToConvex(values)
+      .then(() => {
+        toast({
+          title: "Submission Received",
+          description: "Thank you for your interest! We'll be in touch soon.",
+        })
+        setIsSignUpOpen(false)
+      })
+      .catch((error) => {
+        toast({
+          title: "Submission Failed",
+          description: "There was an issue saving your data. Please try again later.",
+          status: "error",
+        })
+      })
   }
 
   return (
