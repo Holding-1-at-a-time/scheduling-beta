@@ -1,10 +1,10 @@
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from '@clerk/nextjs';
-import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
+import { ConvexProviderWithClerk } from "convex/clerk/nextjs";
+import { ConvexReactClient } from "convex/react";
 import type { Metadata } from "next";
 import { Libre_Baskerville, Poppins } from 'next/font/google';
 import "./globals.css";
-import { ConvexClient } from "convex/browser";
 
 const fontHeading = Libre_Baskerville({
   subsets: ['latin'],
@@ -19,11 +19,12 @@ const fontBody = Poppins({
   variable: '--font-body',
 })
 
-
 export const metadata: Metadata = {
   title: "Detail Synce",
   description: "Revolutionalize One Detail Business At A Time",
 };
+
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export default function RootLayout({
   children,

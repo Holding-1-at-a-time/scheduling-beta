@@ -1,6 +1,7 @@
 // convex/vehicles.ts
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 export const list = query({
     args: {},
@@ -12,7 +13,7 @@ export const list = query({
 
         const vehicles = await ctx.db
             .query("vehicles")
-            .withIndex("by_tenantId", (q) => q.eq("tenantId", ctx.db.id("tenants", identity.tokenIdentifier)))
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", identity.tokenIdentifier))
             .collect();
         vehicles.sort((a, b) => a.year - b.year);
         const uniqueYears = new Set(vehicles.map((v) => v.year));
@@ -40,30 +41,19 @@ export const add = mutation({
             throw new Error("Unauthorized");
         }
 
-        const { make, model, year, image, vin, vehicleId: newVehicleId, clientId, tenantId } = args;
+        const { make, model, year, image, VIN, vehicleId: newVehicleId, clientId, tenantId } = args;
 
         // Validate input
-        if (year < 1900 || year > new Date().getFullYear()  1) {
+        if (year < 1900 || year > new Date().getFullYear() + 1) {
             throw new Error("Invalid year");
         }
-        if (!make || !model || !vin || !image) {
+        if (!make || !model || !VIN || !image) {
             throw new Error("Missing required fields");
         }
-        if (year < 1900 || year > new Date().getFullYear()  1)
-            throw new Error("Invalid year");
-        if (!make || !model || !vin || !image)
-            throw new Error("Missing required fields");
-        if (year < 1900 || year > new Date().getFullYear()  1)
-            throw new Error("Invalid year");
-        if (!make || !model || !vin || !image)
-            throw new Error("Missing required fields");
+
         // ... (rest of the code remains the same)
-        if (year < 1900 || year > new Date().getFullYear()  1)
-            throw new Error("Invalid year");
-        if (!make || !model || !vin || !image)
-            throw new Error("Missing required fields");
     }
-};
+});
 
 export const insert = mutation({
     args: {
@@ -73,9 +63,9 @@ export const insert = mutation({
         image: v.string(),
         clientId: v.id('clients'),
         tenantId: v.id('tenants'),
-        vin: v.string(),
+        VIN: v.string(),
     },
-    handler: async (ctx, { make, model, year, image, clientId, tenantId, vin }) => {
+    handler: async (ctx, { make, model, year, image, clientId, tenantId, VIN }) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) {
             throw new Error("Unauthorized");
@@ -88,10 +78,11 @@ export const insert = mutation({
             image,
             clientId,
             tenantId,
-            vin,
-            date: 0,
+            VIN,
+            date: Date.now(),
             clientName: "",
-            bodyType: ""
+            bodyType: "",
+            vehicleId: await ctx.db.generateId("vehicles"),
         };
 
         const insertedVehicleId = await ctx.db.insert("vehicles", vehicle);
@@ -121,7 +112,7 @@ export const update = mutation({
         const { id, make, model, year, image } = args;
 
         // Validate input
-        if (year < 1900 || year > new Date().getFullYear()  1) {
+        if (year < 1900 || year > new Date().getFullYear() + 1) {
             throw new Error("Invalid year");
         }
 

@@ -34,30 +34,21 @@ export const create = mutation({
         serviceId: v.id("services"),
         serviceName: v.string(),
         servicePrice: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
         if (!identity) {
-        serviceDescription: v.string(),
-        return await ctx.db.insert("appointments", {
-                    tenantId,
-                    userId: identity.subject,
-                    date: args.date,
-                    status: "scheduled",
-                    details: args.details,
-                });
-
+            throw new Error("Unauthenticated");
         }
-
-        const createAppointment = async (ctx, args) => {
-            const tenantId = await getTenantId(ctx);
-            const appointmentData = {
-              tenantId: tenantId as Id<"tenants">,
-              userId: identity.subject as Id<"users">,
-              date: args.date,
-              status: "scheduled",
-              details: args.details,
-            };
-          
-            return await ctx.db.insert("appointments", appointmentData);
-          };
+        return await ctx.db.insert("appointments", {
+            tenantId,
+            userId: identity.subject,
+            date: args.date,
+            status: "scheduled",
+            details: args.details,
+        });
+    },
+});
 
 export const updateStatus = mutation({
     args: {
@@ -70,3 +61,28 @@ export const updateStatus = mutation({
         return { success: true };
     },
 });
+
+export const schedule = mutation({
+    args: {
+        vehicleInfo: v.object({
+            make: v.string(),
+            model: v.string(),
+            year: v.string(),
+            condition: v.string(),
+        }),
+        estimatedCost: v.number(),
+        estimatedDuration: v.number(),
+        date: v.string(),
+        time: v.string(),
+    },
+    handler: async (ctx, args) => {
+        // Implement appointment scheduling logic here
+        // This might involve checking availability, creating a booking record, etc.
+        const appointmentId = await ctx.db.insert('appointments', {
+            ...args,
+            status: 'scheduled',
+        })
+
+        return appointmentId
+    },
+})

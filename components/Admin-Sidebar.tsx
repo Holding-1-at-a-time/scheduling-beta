@@ -5,22 +5,14 @@ import { usePathname } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { cn } from "@/lib/utils";
-<<<<<<< HEAD
-import { HomeIcon, UsersIcon, SettingsIcon, ToolIcon, BarChartIcon, MessageSquareIcon } from 'lucide-react';
-=======
 import { HomeIcon, UsersIcon, SettingsIcon, BarChartIcon, MessageSquareIcon } from 'lucide-react';
-import { toolIcon } from './Icons';
->>>>>>> development
+import { ToolIcon } from '@/public/Icons';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: HomeIcon },
   { href: '/admin/users', label: 'Users', icon: UsersIcon },
   { href: '/admin/settings', label: 'Settings', icon: SettingsIcon },
-<<<<<<< HEAD
   { href: '/admin/services', label: 'Services', icon: ToolIcon },
-=======
-  { href: '/admin/services', label: 'Services', icon: toolIcon },
->>>>>>> development
   { href: '/admin/reports', label: 'Reports', icon: BarChartIcon },
   { href: '/admin/messages', label: 'Messages', icon: MessageSquareIcon },
 ];

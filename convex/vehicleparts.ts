@@ -1,6 +1,7 @@
 // convex/vehicleParts.ts
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 export const list = query({
     args: {
@@ -29,32 +30,28 @@ export const list = query({
     },
 });
 
-
 export const save = mutation({
     args: {
         tenantId: v.id("tenants"),
         vehicleId: v.id("vehicles"),
-        assessmentId: v.id('assessments'),
+        assessment: v.object({
+            date: v.string(),
+            images: v.array(v.string()),
+            notes: v.optional(v.string()),
+            part: v.string(),
+            status: v.string(),
+        }),
         vehiclePart: v.object({
             part: v.string(),
             issue: v.string(),
             vehicleId: v.id("vehicles"),
-            assessment: v.array(
-                v.object({
-                    date: v.string(),
-                    images: v.union(v.string(), v.literal('URL')),
-                    notes: v.optional(v.string()),
-                    part: v.string(),
-                    status: v.string(),
-                })
-            ),
             clientId: v.id('clients'),
             clientEmail: v.string(),
             clientName: v.string(),
             clientPhone: v.string(),
         }),
     },
-    handler: async (ctx, { vehicleId, assessmentId }) => {
+    handler: async (ctx, { vehicleId, assessment, tenantId }) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) {
             throw new Error("Unauthorized");
@@ -71,11 +68,11 @@ export const save = mutation({
             .unique();
 
         if (existingAssessment) {
-            await ctx.db.patch(existingAssessment._id, { assessmentId });
+            await ctx.db.patch(existingAssessment._id, { assessment });
         } else {
             await ctx.db.insert("assessments", {
                 vehicleId,
-                assessmentId,
+                assessment,
                 tenantId: identity.tokenIdentifier,
             });
         }

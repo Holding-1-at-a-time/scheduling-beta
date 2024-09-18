@@ -27,7 +27,7 @@ export const addService = mutation({
             throw new Error('Unauthenticated')
         }
 
-        const tenantId = await getTenantId(ctx, identity);
+        const tenantId = await getTenantId(ctx.db, identity);
 
         const serviceData: ServiceData = {
             tenantId,
@@ -60,7 +60,11 @@ export const updateService = mutation({
             throw new Error('Unauthorized or service not found')
         }
 
-        return await ctx.db.patch(id, updateData);
+        const updatedService = await ctx.db.patch(id, updateData);
+        if (!updatedService) {
+            throw new Error('Failed to update service');
+        }
+        return updatedService;
     },
 })
 
@@ -105,7 +109,7 @@ export const listServices = query({
         const tenantId = await getTenantId(ctx, identity);
         const services = await ctx.db
             .query("services")
-            .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+            .withIndex("by_tenant_and_name", (q) => q.eq("tenantId", tenantId))
             .collect();
 
         return services.map(service => ({
@@ -114,5 +118,34 @@ export const listServices = query({
             price: service.price,
             duration: service.duration,
         }));
+    },
+});
+
+export const createService = mutation({
+    args: {
+        tenantId: v.string(),
+        name: v.string(),
+        description: v.string(),
+        price: v.number(),
+        duration: v.number(),
+        image: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const { tenantId, ...serviceData } = args;
+        const serviceId = await ctx.db.insert("services", {
+            tenantId: tenantId as Id<"tenants">,
+            ...serviceData,
+        });
+        return serviceId;
+    },
+});
+
+export const getServicesByTenant = query({
+    args: { tenantId: v.string() },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("services")
+            .withIndex("by_tenant_and_name", (q) => q.eq("tenantId", args.tenantId as Id<"tenants">))
+            .collect();
     },
 });
