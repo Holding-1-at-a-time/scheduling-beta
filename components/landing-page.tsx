@@ -75,18 +75,16 @@ const formSchema = z.object({
   terms: z.boolean().refine(value => value === true, {
     message: "You must agree to the terms and conditions.",
   }),
-})
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function LandingPageComponent() {
-  const [activeFeature, setActiveFeature] = useState('scheduling')
-  const [isAnnualBilling, setIsAnnualBilling] = useState(false)
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
+  const [activeFeature, setActiveFeature] = useState<string>('scheduling');
+  const [isAnnualBilling, setIsAnnualBilling] = useState<boolean>(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState<boolean>(false);
 
-  const { scrollYProgress } = useScroll()
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
-
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -97,14 +95,13 @@ export function LandingPageComponent() {
       message: "",
       terms: false,
     },
-  })
+  });
 
   const saveSignUpData = useMutation(api.saveSignUpData);
 
-  const saveToConvex = async (data: z.infer<typeof formSchema>) => {
+  const saveToConvex = async (data: FormData): Promise<string> => {
     try {
       console.log('Saving to Convex:', data);
-
       const result = await saveSignUpData(data);
       if (!result) {
         throw new Error('Failed to save data');
@@ -116,35 +113,22 @@ export function LandingPageComponent() {
     }
   };
 
-  const result = await saveSignUpData(data);
-  if (!result) {
-    throw new Error('Failed to save data');
-  }
-  return result;
-}
-    } catch (error) {
-  console.error('Error saving to Convex:', error);
-  throw error;
-}
-  };
-
-function onSubmit(values: z.infer<typeof formSchema>) {
-  saveToConvex(values)
-    .then(() => {
+  const onSubmit = async (values: FormData) => {
+    try {
+      await saveToConvex(values);
       toast({
         title: "Submission Received",
         description: "Thank you for your interest! We'll be in touch soon.",
-      })
-      setIsSignUpOpen(false)
-    })
-    .catch((error) => {
+      });
+      setIsSignUpOpen(false);
+    } catch (error) {
       toast({
         title: "Submission Failed",
         description: "There was an issue saving your data. Please try again later.",
-        status: "error",
-      })
-    })
-}
+        variant: "destructive",
+      });
+    }
+  };
 
 return (
   <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">

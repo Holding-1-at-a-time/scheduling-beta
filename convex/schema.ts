@@ -78,6 +78,24 @@ export default defineSchema({
         .index("by_name", ["tenantName"])
         .index("by_address", ["tenantAddress"]),
 
+    conditionDetails: defineTable({
+        conditionDetailId: v.id('conditionDetails'),
+        assessmentId: v.id('assessments'),
+        tenantId: v.id('tenants'),
+        hotspotId: v.id('vehicleParts'),
+        issueType: v.string(),
+        severity: v.string(),
+        createdAt: v.string(),
+        updatedAt: v.string(),
+        deletedAt: v.optional(v.string()),
+        deleted: v.boolean(),
+        deletedBy: v.optional(v.id('users')),
+        deletedReason: v.optional(v.string()),
+    })
+        .index('by_tenant', ['tenantId'])
+        .index('by_hotspot', ['hotspotId'])
+        .index('by_assessment', ['assessmentId']),
+
     clients: defineTable({
         tenantId: v.id('tenants'),
         name: v.string(),
@@ -251,6 +269,19 @@ export default defineSchema({
         .index("by_tenantId", ["tenantId"])
         .index("by_vin_and_tenantId", ["vin", "tenantId"]),
 
+    signUpData: defineTable({
+        name: v.string(),
+        email: v.string(),
+        business: v.string(),
+        size: v.union(v.literal('solo'), v.literal('small'), v.literal('medium'), v.literal('large')),
+        interests: v.union(v.literal('scheduling'), v.literal('customer'), v.literal('notifications'), v.literal('integration'), v.literal('analytics'), v.literal('security')),
+        message: v.optional(v.string()),
+        terms: v.boolean(),
+    })
+        .index("by_email", ["email"])
+        .index("by_business", ["business"])
+        .index("by_size", ["size"])
+        .index("by_interests", ["interests"]),
 
     vehiclesEmbeddings: defineTable({
         tenantId: v.id('tenants'),
