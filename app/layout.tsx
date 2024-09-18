@@ -1,18 +1,10 @@
+import { Toaster } from "@/components/ui/toaster";
+import { ClerkProvider } from '@clerk/nextjs';
+import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
 import type { Metadata } from "next";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton
-} from '@clerk/nextjs'
+import { Libre_Baskerville, Poppins } from 'next/font/google';
 import "./globals.css";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { ConvexClientProvider } from "./ConvexClientProvider";
-import { Analytics } from "@vercel/analytics/react"
-import { Libre_Baskerville } from 'next/font/google'
-import { Poppins } from 'next/font/google'
-import { cn } from '@/lib/utils';
+import { ConvexClient } from "convex/browser";
 
 const fontHeading = Libre_Baskerville({
   subsets: ['latin'],
@@ -40,14 +32,14 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <ConvexProvider>
+      <ConvexProviderWithClerk>
         <html lang="en">
           <body>
             {children}
             <Toaster />
           </body>
         </html>
-      </ConvexProvider>
+      </ConvexProviderWithClerk>
     </ClerkProvider>
   );
 }
