@@ -1,88 +1,113 @@
 // convex/services.ts
 import { mutation, query } from './_generated/server'
 import { v } from 'convex/values'
+import { getTenantId } from './auth'
+import { Id } from './_generated/dataModel'
 
+interface ServiceData {
+    tenantId: string;
+    name: string;
+    description: string;
+    price: number;
+    duration: number;
+    image: string;
+}
 
-export const listServices = query({
-    args: {},
-    handler: async (ctx) => {
-        const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
-
-        const userId = identity.subject
-
-        return await ctx.db
-            .query('services')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .collect()
-    },
-})
-
-export const addServices = mutation({
+export const addService = mutation({
     args: {
         name: v.string(),
         description: v.string(),
         price: v.number(),
         duration: v.number(),
+        image: v.string(),
     },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<Id<'services'>> => {
         const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
+        if (!identity) {
+            throw new Error('Unauthenticated')
+        }
 
-        const userId = identity.subject
+        const tenantId = await getTenantId(ctx, identity);
 
-        return await ctx.db.insert('services', { userId, ...args })
+        const serviceData: ServiceData = {
+            tenantId,
+            ...args,
+        };
+
+        return await ctx.db.insert('services', serviceData);
     },
 })
 
-export const updateServices = mutation({
+export const updateService = mutation({
     args: {
         id: v.id('services'),
-        name: v.string(),
-        description: v.string(),
-        price: v.number(),
-        duration: v.number(),
+        name: v.optional(v.string()),
+        description: v.optional(v.string()),
+        price: v.optional(v.number()),
+        duration: v.optional(v.number()),
+        image: v.optional(v.string()),
     },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<Id<'services'>> => {
         const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
+        if (!identity) {
+            throw new Error('Unauthenticated')
+        }
 
-        const { id, ...updateData } = args
+        const { id, ...updateData } = args;
 
-        const existingService = await ctx.db.get(id)
-        if (!existingService || existingService.userId !== identity.subject) {
+        const existingService = await ctx.db.get(id);
+        if (!existingService || existingService.tenantId !== identity.subject) {
             throw new Error('Unauthorized or service not found')
         }
 
-        return await ctx.db.patch(id, updateData)
+        return await ctx.db.patch(id, updateData);
     },
 })
 
-export const removeServices = mutation({
+export const removeService = mutation({
     args: { id: v.id('services') },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<void> => {
         const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
+        if (!identity) {
+            throw new Error('Unauthenticated')
+        }
 
         const existingService = await ctx.db.get(args.id)
-        if (!existingService || existingService.userId !== identity.subject) {
+        if (!existingService || existingService.tenantId !== identity.subject) {
             throw new Error('Unauthorized or service not found')
         }
 
-        await ctx.db.delete(args.id)
+        await ctx.db.delete(args.id);
     },
-<<<<<<< HEAD
 })
 
+interface ServiceListItem {
+    id: Id<'services'>;
+    name: string;
+    price: number;
+    duration: number;
+}
 
 export const listServices = query({
-    args: {},
-    handler: async (ctx) => {
-        const tenantId = await getTenantId(ctx);
+    args: {
+        tenantId: v.id('tenants'),
+        name: v.optional(v.string()),
+        description: v.optional(v.string()),
+        price: v.optional(v.number()),
+        duration: v.optional(v.number()),
+        image: v.optional(v.string()),
+    },
+    handler: async (ctx, args): Promise<ServiceListItem[]> => {
+        const identity = await ctx.auth.getUserIdentity()
+        if (!identity) {
+            throw new Error('Unauthenticated')
+        }
+        const tenantId = await getTenantId(ctx, identity);
         const services = await ctx.db
             .query("services")
             .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
             .collect();
+
         return services.map(service => ({
             id: service._id,
             name: service.name,
@@ -91,43 +116,3 @@ export const listServices = query({
         }));
     },
 });
-
-export const addService = mutation({
-    args: {
-        name: v.string(),
-        price: v.number(),
-        duration: v.number(),
-    },
-    handler: async (ctx, args) => {
-        const tenantId = await getTenantId(ctx);
-        const serviceId = await ctx.db.insert("services", {
-            tenantId,
-            name: args.name,
-            price: args.price,
-            duration: args.duration,
-        });
-        return serviceId;
-    },
-});
-
-export const updateService = mutation({
-    args: {
-        serviceId: v.id("services"),
-        name: v.optional(v.string()),
-        price: v.optional(v.number()),
-        duration: v.optional(v.number()),
-    },
-    handler: async (ctx, args) => {
-        const tenantId = await getTenantId(ctx);
-        const { serviceId, ...updates } = args;
-        const service = await ctx.db.get(serviceId);
-        if (!service || service.tenantId !== tenantId) {
-            throw new Error("Service not found or not in your organization");
-        }
-        await ctx.db.patch(serviceId, updates);
-    },
-});
-=======
-});
-
->>>>>>> development

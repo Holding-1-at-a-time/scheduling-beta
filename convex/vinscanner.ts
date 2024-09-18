@@ -43,16 +43,14 @@ export const createVehicleProfile = mutation({
             throw new Error("Vehicle with this VIN already exists");
         }
 
-        // Create new vehicle profile
         const vehicleId = await ctx.db.insert("vehicles", {
             tenantId,
             vin,
             make,
             model,
             year,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        });
+        });       // Create new vehicle profile
+ 
 
         return { id: vehicleId, vin, make, model, year };
     },

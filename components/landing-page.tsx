@@ -20,6 +20,7 @@ import * as z from "zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
 const features = [
   { id: 'scheduling', icon: Calendar, title: 'AI-Powered Scheduling', description: 'Optimize appointments with machine learning' },
@@ -98,31 +99,27 @@ export function LandingPageComponent() {
     },
   })
 
+  const saveSignUpData = useMutation(api.saveSignUpData);
 
   const saveToConvex = async (data: z.infer<typeof formSchema>) => {
     try {
-      console.log('Saving to Convex:', data)
-      // Call Convex mutation to save data
-      const { mutate } = useMutation('saveSignUpData');
-      await mutate(data);
-      const response = await fetch('/api/convex', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-      if (!response.ok) {
-        throw new Error('Failed to save data')
+      console.log('Saving to Convex:', data);
+
+      const result = await saveSignUpData(data);{
+        await saveSignUpData(data);
+
+        const result = await saveSignUpData(data);
+        if (!result) {
+          throw new Error('Failed to save data');
+        }
+        return result;
       }
-      const result = await response.json()
-      return result
     } catch (error) {
-      console.error('Error saving to Convex:', error)
-      throw error
+      console.error('Error saving to Convex:', error);
+      throw error;
     }
-  }
-  
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     saveToConvex(values)
       .then(() => {

@@ -29,19 +29,11 @@ export const getAdminAnalytics = query({
                 .take(30),
         ]);
 
-<<<<<<< HEAD
         const totalRevenue = analytics.reduce((sum, a) => sum + a.revenue, 0);
         const completedServices = analytics.reduce((sum, a) => sum + a.completedServices, 0);
         const noShowRate = analytics.reduce((sum, a) => sum + a.noShows, 0) / appointments.length;
         const averageRating = analytics.flatMap(a => a.ratings).reduce((sum, r) => sum + r, 0) /
             analytics.reduce((sum, a) => sum + a.ratings.length, 0);
-=======
-        const totalRevenue = analytics.reduce((sum, a) => sum  a.revenue, 0);
-        const completedServices = analytics.reduce((sum, a) => sum  a.completedServices, 0);
-        const noShowRate = analytics.reduce((sum, a) => sum  a.noShows, 0) / appointments.length;
-        const averageRating = analytics.flatMap(a => a.ratings).reduce((sum, r) => sum  r, 0) /
-            analytics.reduce((sum, a) => sum  a.ratings.length, 0);
->>>>>>> development
 
         return {
             metrics: {

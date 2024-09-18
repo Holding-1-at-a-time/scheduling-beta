@@ -6,6 +6,98 @@ import { api } from '@/convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { toast } from '@/components/ui/use-toast';
+import Image from 'next/image';
+import { Id } from '@/convex/_generated/dataModel';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Spinner } from '@/components/ui/spinner';
+import { getCurrentUserContext } from '@/lib/user-context';
+import { generateUniqueId } from '@/lib/utils';
+
+const vehicleSchema = z.object({
+    make: z.string().min(1, "Make is required"),
+    model: z.string().min(1, "Model is required"),
+    year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
+    image: z.string().url("Invalid image URL"),
+    type: z.string().optional(),
+    VIN: z.string().optional(),
+});
+
+type VehicleFormData = z.infer<typeof vehicleSchema>;
+
+export const VehicleProfiles: React.FC = () => {
+    const [isAddingVehicle, setIsAddingVehicle] = useState(false);
+    const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+
+    const vehiclesQuery = useQuery(api.vehicles.list);
+    const addVehicleMutation = useMutation(api.vehicles.add);
+    const updateVehicleMutation = useMutation(api.vehicles.update);
+    const deleteVehicleMutation = useMutation(api.vehicles.remove);
+
+    const form = useForm<VehicleFormData>({
+        resolver: zodResolver(vehicleSchema),
+        defaultValues: {
+            make: '',
+            model: '',
+            year: new Date().getFullYear(),
+            image: '',
+            type: '',
+            VIN: '',
+        },
+    });
+
+    const handleAddVehicle = useCallback(async (data: VehicleFormData) => {
+        try {
+            const { tenantId, clientId } = await getCurrentUserContext();
+            const vehicleId = generateUniqueId();
+            
+            await addVehicleMutation({
+                ...data,
+                type: data.type || 'default',
+                tenantId,
+                vehicleId,
+                clientId,
+                VIN: data.VIN || '',
+            });
+            
+            setIsAddingVehicle(false);
+            form.reset();
+            toast({
+                title: "Success",
+                description: "Vehicle added successfully",
+                variant: "default",
+            });
+        } catch (error) {
+            console.error("Error adding vehicle:", error);
+            toast({
+                title: "Error",
+                description: "Failed to add vehicle. Please try again.",
+                variant: "destructive"
+            });
+        }
+    }, [addVehicleMutation, form]);
+
+    const handleUpdateVehicle = useCallback(
+        async (data: VehicleFormData) => {
+            if (!editingVehicle) return;
+            try {
+                await updateVehicleMutation({ id: editingVehicle._id, ...data });
+                setEditingVehicle(null);
+                toast({ title: "Success", description: "Vehicle updated successfully" });
+            } catch (error) {
+                console.error("Error updating vehicle:", error);
+'use client'
+
+import React, { useState, useCallback } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
 import { Spinner } from '@/components/SpinnerComponent';

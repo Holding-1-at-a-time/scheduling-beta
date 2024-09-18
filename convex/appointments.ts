@@ -1,14 +1,7 @@
 // convex/appointments.ts
-<<<<<<< HEAD
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getTenantId } from "./auth";
-=======
-import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { getTenantId } from "./auth";
-import { Id } from "./_generated/dataModel";
->>>>>>> development
 
 export const list = query({
     args: {
@@ -21,19 +14,11 @@ export const list = query({
 
         const appointments = await ctx.db
             .query("appointments")
-<<<<<<< HEAD
-            .withIndex("by_tenant_and_date", (q) => q.eq("tenantId", tenantId))
-            .order("desc")
-            .paginate({ numItems: pageSize, paginationOpts: { after: page > 1 ? ((page - 1) * pageSize).toString() : null } });
-
-        return appointments.map((appointment) => ({
-=======
             .withIndex("by_tenant_and_date", (q) => q.eq("tenantId", tenantId as Id<"tenants">))
             .order("desc")
             .paginate({ numItems: pageSize, cursor: page > 1 ? ((page - 1) * pageSize).toString() : undefined });
 
         return appointments.page.map((appointment) => ({
->>>>>>> development
             _id: appointment._id,
             date: appointment.date,
             status: appointment.status,
@@ -46,23 +31,6 @@ export const create = mutation({
     args: {
         date: v.number(),
         details: v.string(),
-<<<<<<< HEAD
-    },
-    handler: async (ctx, args) => {
-        const tenantId = await getTenantId(ctx);
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Unauthenticated");
-
-        const appointmentId = await ctx.db.insert("appointments", {
-            tenantId,
-            userId: identity.subject,
-            date: args.date,
-            status: "scheduled",
-            details: args.details,
-        });
-
-        return appointmentId;
-=======
         serviceId: v.id("services"),
         serviceName: v.string(),
         servicePrice: v.number(),
@@ -100,6 +68,5 @@ export const updateStatus = mutation({
         const { id, status } = args;
         await ctx.db.patch(id, { status: status as "completed" | "no_show" | "canceled" | "pending" | "rescheduled" | "required" });
         return { success: true };
->>>>>>> development
     },
 });

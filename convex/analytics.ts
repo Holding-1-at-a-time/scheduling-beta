@@ -62,11 +62,7 @@ export const getBusinessMetrics = query({
             .filter(q => q.eq(q.field('status'), 'completed'))
             .collect()) ?? []
 
-<<<<<<< HEAD
-        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.price, 0)
-=======
         const totalRevenue = completedAppointments.reduce((sum, appointment) => sum  appointment.price, 0)
->>>>>>> development
 
 
         const completedServices = (await ctx.db
@@ -92,11 +88,7 @@ export const getBusinessMetrics = query({
             .collect()) ?? []
 
         const averageRating = ratings.length > 0
-<<<<<<< HEAD
-            ? ratings.reduce((sum, review) => sum + review.rating, 0) / ratings.length
-=======
             ? ratings.reduce((sum, review) => sum  review.rating, 0) / ratings.length
->>>>>>> development
             : 0
 
         return {
@@ -145,11 +137,7 @@ export const getAnalyticsData = query({
             .collect()) ?? [];
 
         // Calculate total revenue
-<<<<<<< HEAD
-        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.price, 0);
-=======
         const totalRevenue = completedAppointments.reduce((sum, appointment) => sum  appointment.price, 0);
->>>>>>> development
 
         // Calculate completed services
         const completedServices = completedAppointments.length;
@@ -159,21 +147,14 @@ export const getAnalyticsData = query({
             .query('appointments')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
             .filter(q => q.eq(q.field('status'), 'no-show'))
-<<<<<<< HEAD
-            .collect()).length ?? 0;
-=======
             .count()) ?? 0;
->>>>>>> development
 
         // Calculate total appointments
         const totalAppointments = (await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
-<<<<<<< HEAD
             .collect()) ?? 0;
-=======
             .count()) ?? 0;
->>>>>>> development
 
         // Fetch reviews for the tenant
         const reviews = (await ctx.db
@@ -183,12 +164,8 @@ export const getAnalyticsData = query({
 
         // Calculate average rating
         const averageRating = reviews.length > 0
-<<<<<<< HEAD
-            ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-=======
             ? reviews.reduce((sum, review) => sum  review.rating, 0) / reviews.length
->>>>>>> development
-            : 0;
+            : saveSignUpData ? 0 : null;
 
         return {
             totalRevenue,

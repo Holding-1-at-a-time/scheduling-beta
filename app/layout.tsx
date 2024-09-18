@@ -40,25 +40,14 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <Analytics />
-        <SpeedInsights />
-        <body
-          className={cn(
-            'antialiased',
-            fontHeading.variable,
-            fontBody.variable
-          )}
-          <SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-        <ConvexClientProvider>{children}</ConvexClientProvider>
-      </body>
-    </html>
-    </ClerkProvider >
-
+      <ConvexProvider>
+        <html lang="en">
+          <body>
+            {children}
+            <Toaster />
+          </body>
+        </html>
+      </ConvexProvider>
+    </ClerkProvider>
   );
 }

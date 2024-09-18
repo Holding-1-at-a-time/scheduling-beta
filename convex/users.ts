@@ -3,8 +3,6 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getTenantId } from "./auth";
 
-<<<<<<< HEAD
-=======
 
 export const upsertUser = mutation({
     args: {
@@ -88,7 +86,6 @@ export const upsertOrganization = mutation({
     },
 });
 
->>>>>>> development
 export const getCurrentUser = query({
     args: {},
     handler: async (ctx) => {

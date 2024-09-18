@@ -1,50 +1,4 @@
 // convex/schema.ts
-<<<<<<< HEAD
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
-
-export default defineSchema({
-    users: defineTable({
-        name: v.string(),
-        email: v.string(),
-        role: v.string(),
-        tenantId: v.string(),
-    }).index("by_tenant", ["tenantId"]),
-
-    services: defineTable({
-        tenantId: v.string(),
-        name: v.string(),
-        price: v.number(),
-        duration: v.number(),
-    }).index("by_tenant", ["tenantId"]),
-
-    analytics: defineTable({
-        tenantId: v.string(),
-        date: v.number(),
-        revenue: v.number(),
-        completedServices: v.number(),
-        noShows: v.number(),
-        ratings: v.array(v.number()),
-    }).index("by_tenant_and_date", ["tenantId", "date"]),
-
-    appointments: defineTable({
-        tenantId: v.string(),
-        userId: v.id('users'),
-        date: v.number(),
-        status: v.string(),
-        details: v.string(),
-        customerId: v.string(),
-        serviceId: v.string(),
-    }).index("by_tenant_and_date", ["tenantId", "date"]),
-
-    availableSlots: defineTable({
-        tenantId: v.string(),
-        date: v.number(),
-        isAvailable: v.boolean(),
-    }).index("by_tenant_and_date", ["tenantId", "date"]),
-});
-=======
-// convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
@@ -185,6 +139,8 @@ export default defineSchema({
         .index("by_tenant_and_appointments", ["tenantId", "appointments"])
         .index("by_tenant_and_date", ["tenantId", "date"]),
 
+
+
     appointments: defineTable({
         appointmentId: v.id('appointments'),
         tenantId: v.id('tenants'),
@@ -199,6 +155,16 @@ export default defineSchema({
             v.literal("no_show"),
             v.literal("rescheduled"),
             v.literal("required"),
+            v.literal("in_progress"),
+            v.literal("invoiced"),
+            v.literal("invoice_sent"),
+            v.literal("invoice_paid"),
+            v.literal("invoice_cancelled"),
+            v.literal("invoice_due"),
+            v.literal("invoice_overdue"),
+            v.literal("invoice_voided"),
+            v.literal("invoice_partial"),
+            v.literal("invoice_full"),
         ),
         details: v.string(),
         clientsId: v.id('clients'),
@@ -226,7 +192,8 @@ export default defineSchema({
         tenantId: v.id('tenants'),
         userId: v.id('users'),
         serviceId: v.id('services'),
-        customerId: v.string(),
+        clientId: v.id('clients'),
+        clientName: v.string(),
         date: v.number(),
         isAvailable: v.boolean(),
     })
@@ -315,13 +282,41 @@ export default defineSchema({
         revenue: v.number(),
         completedServices: v.number(),
         newCustomers: v.number(),
+        newClients: v.number(),
+        status: v.union(
+            v.literal("scheduled"),
+            v.literal("canceled"),
+            v.literal("pending"),
+            v.literal("completed"),
+            v.literal("no_show"),
+            v.literal("rescheduled"),
+            v.literal("required"),
+            v.literal("in_progress"),
+            v.literal("invoiced"),
+            v.literal("invoice_sent"),
+            v.literal("invoice_paid"),
+            v.literal("invoice_cancelled"),
+            v.literal("invoice_due"),
+            v.literal("invoice_overdue"),
+            v.literal("invoice_voided"),
+            v.literal("invoice_partial"),
+            v.literal("invoice_full"),
+        ),
         newAppointments: v.number(),
         newNoShows: v.number(),
         completedAppointments: v.number(),
         completedNoShows: v.number(),
         noShows: v.number(),
         appointments: v.number(),
-        customers: v.number(),
+        clients: v.number(),
+        clientName: v.string(),
+        clientEmail: v.string(),
+        clientPhone: v.string(),
+        clientAddress: v.string(),
+        clientCity: v.string(),
+        clientState: v.string(),
+        clientZip: v.string(),
+        clientId: v.id('clients'),
         ratings: v.array(v.number()),
         availableSlots: v.array(v.number()),
         embedding: v.array(v.number()),
@@ -341,7 +336,7 @@ export default defineSchema({
                 'completedNoShows',
                 'noShows',
                 'appointments',
-                'customers',
+                'clients',
                 'ratings',
                 'availableSlots',
             ],
@@ -351,4 +346,3 @@ export default defineSchema({
         .index("by_new_customers", ["newCustomers"])
         .index("by_new_appointments", ["newAppointments"]),
 });
->>>>>>> development
