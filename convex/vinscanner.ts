@@ -3,14 +3,14 @@ import { mutation, query } from "./_generated/server";
 import { Id } from './_generated/dataModel';
 
 interface Vehicle {
-    _id: Id<"vehicles">;
-    tenantId: Id<"tenants">;
-    vin: string;
-    make: string;
-    model: string;
-    year: number;
-    createdAt: number;
-    updatedAt: number;
+    vehicleId: v.id<'vehicles'>;
+    tenantId: v.Id<"tenants">;
+    vin: v.string;
+    make: v.string;
+    model: v.string;
+    year: v.number;
+    createdAt: v.number;
+    updatedAt: v.number;
 }
 
 export const createVehicleProfile = mutation({
@@ -20,6 +20,9 @@ export const createVehicleProfile = mutation({
         make: v.string(),
         model: v.string(),
         year: v.number(),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+        
     },
     handler: async (ctx, args): Promise<Vehicle> => {
         const { tenantId, vin, make, model, year } = args;

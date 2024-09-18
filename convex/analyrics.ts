@@ -1,6 +1,7 @@
 // convex/analytics.ts
 import { query } from './_generated/server'
 import { v } from 'convex/values'
+import { getTenantId } from './auth'
 
 export const getBusinessMetrics = query({
     args: {},
@@ -56,8 +57,9 @@ export const getRevenueData = query({
     args: {},
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
-
+        if (!identity) {
+            throw new Error('Unauthenticated')
+        }
         const userId = identity.subject
 
         // Fetch revenue data for the last 30 days
@@ -74,7 +76,7 @@ export const getRevenueData = query({
         // Group appointments by date and sum the revenue
         const revenueByDate = appointments.reduce((acc, appointment) => {
             const date = new Date(appointment.date).toISOString().split('T')[0]
-            acc[date] = (acc[date] || 0) + appointment.price
+            acc[date] = (acc[date] || 0) + appointment.servicePrice
             return acc
         }, {} as Record<string, number>)
 
@@ -89,8 +91,9 @@ export const getServiceBreakdown = query({
     args: {},
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
-
+        if (!identity) {
+            throw new Error('Unauthenticated')
+        }
         const userId = identity.subject
 
         const appointments = await ctx.db
@@ -111,9 +114,7 @@ export const getServiceBreakdown = query({
     },
 })
 
-import { Query } from "convex/server";
-
-export const getMetrics = Query(async ({ db }) => {
+export const getMetrics = query(async ({ db }) => {
     try {
         const totalRevenue = await db.query("services").sum("revenue") ?? 0;
         const completedServices = await db.query("services").filter({ status: "completed" }).count();
@@ -137,9 +138,29 @@ export const getMetrics = Query(async ({ db }) => {
 // convex/analytics.ts
 
 export const getAnalyticsData = query({
-    args: {},
+    args: {
+        tenantId: v.string(),
+        date: v.string(),
+        serviceName: v.string(),
+        servicePrice: v.number(),
+        revenue: v.number(),
+        completedServices: v.number(),
+        noShows: v.number(),
+        averageRating: v.number(),
+        dailyData: v.array(v.object({
+            date: v.string(),
+            revenue: v.number(),
+            completedServices: v.number(),
+            noShows: v.number(),
+            averageRating: v.number(),
+            ratings: v.array(v.number()),
+            totalRevenue: v.number(),
+            totalAppointments: v.number(),
+            totalNoShows: v.number(),
+        })),
+    },
     handler: async (ctx) => {
-        const tenantId = await getTenantId(ctx);
+        const tenantId = await getTenantId(ctx, args);
 
         const analyticsData = await ctx.db
             .query("analytics")
