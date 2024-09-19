@@ -1,0 +1,24 @@
+{
+    "fileViewType": "tree",
+    "onRepoLoadShowCheckedOutBranch": true,
+    "onRepoLoadShowSpecificBranches": [
+        "development",
+        "main",
+        "remotes/origin/HEAD"
+    ],
+    "pullRequestConfig": {
+        "provider": "github",
+        "hostRootUrl": "https://github.com",
+        "sourceRemote": "origin",
+        "sourceOwner": "Holding-1-at-a-time",
+        "sourceRepo": "scheduling-beta",
+        "destRemote": "origin",
+        "destOwner": "Holding-1-at-a-time",
+        "destRepo": "scheduling-beta",
+        "destProjectId": "",
+        "destBranch": "development",
+        "custom": null
+    },
+    "showRemoteBranches": true,
+    "exportedAt": 1726716244718
+}

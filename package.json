@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@arcjet/next": "1.0.0-alpha.26",
     "@clerk/nextjs": "^5.6.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-dialog": "^1.1.1",

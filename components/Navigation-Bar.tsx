@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-
+import { toast } from "@/components/ui/use-toast";
 
 const navItems = [
   { href: "/", icon: HomeIcon, label: "Home" },
@@ -37,7 +37,6 @@ export default function NavigationBar() {
   const handleSignIn = () => {
     router.push("/sign-in");
   };
-
 
 
   return (
@@ -85,4 +84,14 @@ export default function NavigationBar() {
       </div>
     </motion.nav>
   );
+
+  function newFunction() {
+    return () => {
+      router.push("/");
+      toast({
+        title: "Signed out successfully",
+        description: "We hope to see you again soon!",
+      });
+    };
+  }
 }

@@ -1,12 +1,13 @@
+
 import AnalyticsOverview from '@/components/Analytics-Overview'
-import { AdminDashboard } from '@/components/Admin-Dashboard'
-import { DashboardCard } from '@/components/Dashboard-Card'
+import AdminDashboard from '@/components/Admin-Dashboard'
+import DashboardCard from '@/components/Dashboard-Card'
 import { Header } from '@/components/Header'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import RevenueChart from '@/components/Revenue-Chart'
 import { Sidebar } from 'lucide-react'
-import { Suspense } from 'react'
 
+import { Suspense } from 'react'
 
 export default function DashboardPage() {
     return (
@@ -36,7 +37,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="mt-8">
                             <Suspense fallback={<LoadingSpinner />}>
-                                <AppointmentsList />
+                                <Appointments-List />
                             </Suspense>
                         </div>
                         <div className="mt-8">
