@@ -9,8 +9,8 @@ import { UserRolesManagement } from '@/components/settings/user-roles-management
 import { BusinessDetails } from '@/components/settings/business-details';
 import { ServicePackages } from '@/components/settings/service-packages';
 import { NotificationPreferences } from '@/components/settings/notification-preferences';
-import { IntegrationsConfig } from '@/components/settings/integrations-config';
-import { AdvancedSettings } from '@/components/settings/advanced-settings';
+import { IntegrationsConfig } from '@/components/Integrations-Config';
+import { AdvancedSettings } from '@/components/Advanced-Settings';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { LoadingSpinner } from '@/components/loading-spinner';
 =======

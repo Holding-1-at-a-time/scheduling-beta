@@ -1,14 +1,32 @@
 import AnalyticsOverview from '@/components/Analytics-Overview'
-import { AdminDashboard } from '@/components/Dashboard/Admin-Dashboard'
-import { DashboardCard } from '@/components/Dashboard/Dashboard-Card'
-import { Header } from '@/components/Header'
+import { AdminDashboard } from '@/components/Admin-Dashboard'
+import { DashboardCard } from '@/components/Dashboard-Card'
+import Header from '@/components/Header'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import RevenueChart from '@/components/Revenue-Chart'
 import { Sidebar } from 'lucide-react'
 import React, { Suspense } from 'react'
 import * as AppointmentsListModule from '@/components/Appointments-List';
-import { number } from 'zod'
 
+
+interface DashboardPageProps {
+    data: {
+        totalUsers: number;
+        totalOrganizations: number;
+        activeAppointments: number;
+    };
+    metrics: {
+        totalRevenue: number;
+        completedServices: number;
+        noShowRate: number;
+        averageRating: number;
+    };
+}
+
+interface DashboardCardProps {
+    title: string;
+    value: number; // Add this line
+}
 
 const AppointmentsList = React.lazy(() => AppointmentsListModule.AppointmentList);
 
@@ -47,33 +65,14 @@ const getDashboardMetrics = async () => {
 };
 
 const getDashboardMetricsDefault = async () => {
-    const response = await fetch('/api/metrics');
+    const response = await fetch('/api/metrics-default');
     const data = await response.json();
     if (response.ok) {
         return data;
     } else {
-        throw new Error('Failed to fetch metrics');
+        throw new Error('Failed to fetch default metrics');
     }
 };
-
-interface DashboardPageProps {
-    data: {
-        totalUsers: number;
-        totalOrganizations: number;
-        activeAppointments: number;
-    };
-    metrics: {
-        totalRevenue: number;
-        completedServices: number;
-        noShowRate: number;
-        averageRating: number;
-    };
-}
-
-interface DashboardCardProps {
-    title: string;
-    value: number; // Add this line
-}
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ data, metrics }) => {
     return (
