@@ -1,43 +1,12 @@
-// components/navigation-bar.tsx
 "use client";
 
 import { UserButton, useUser } from "@clerk/nextjs";
-<<<<<<< HEAD
-import { HomeIcon, SettingsIcon } from "lucide-react";
-import Link from "next/link";
-
-export default function NavigationBar() {
-  const { isLoaded, isSignedIn } = useUser();
-
-  return (
-    <nav className="flex items-center justify-between p-4 bg-gradient-to-r from-primary to-primary-light shadow-lg">
-      <div className="flex items-center space-x-4">
-        <Link href="/" className="flex items-center space-x-2 text-white">
-          <HomeIcon className="w-6 h-6" />
-          <span>Home</span>
-        </Link>
-        <Link href="/settings" className="flex items-center space-x-2 text-white">
-          <SettingsIcon className="w-6 h-6" />
-          <span>Settings</span>
-        </Link>
-      </div>
-      <div className="flex items-center space-x-4">
-        {isLoaded && isSignedIn ? (
-          <UserButton afterSignOutUrl="/" />
-        ) : (
-          <Link href="/sign-in" className="text-white">
-            Sign In
-          </Link>
-        )}
-      </div>
-    </nav>
-=======
 import { HomeIcon, SettingsIcon, BarChartIcon, CalendarIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { toast } from "@/components/ui/use-toast";
+
 
 const navItems = [
   { href: "/", icon: HomeIcon, label: "Home" },
@@ -48,7 +17,7 @@ const navItems = [
 ];
 
 export default function NavigationBar() {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -62,20 +31,14 @@ export default function NavigationBar() {
   }, []);
 
   if (!isLoaded) {
-    return <div className="h-16 bg-primary animate-pulse" />;
+    return <div className="h-16 bg-primary animate-pulse" aria-label="Loading navigation bar" />;
   }
 
   const handleSignIn = () => {
     router.push("/sign-in");
   };
 
-  const handleSignOut = () => {
-    router.push("/");
-    toast({
-      title: "Signed out successfully",
-      description: "We hope to see you again soon!",
-    });
-  };
+
 
   return (
     <motion.nav
@@ -93,14 +56,24 @@ export default function NavigationBar() {
             className={`flex items-center space-x-2 text-white transition-colors duration-200 hover:text-primary-light ${pathname === item.href ? "font-bold" : ""
               }`}
           >
-            <item.icon className="w-5 h-5" />
+            <item.icon className="w-5 h-5" aria-hidden="true" />
             <span className="hidden md:inline">{item.label}</span>
           </Link>
         ))}
       </div>
       <div className="flex items-center space-x-4">
         {isSignedIn ? (
-          <UserButton signOutCallback={handleSignOut} />
+          <div className="flex items-center space-x-4">
+            <span className="text-white hidden md:inline">Hello, {user.fullName}!</span>
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "w-10 h-10",
+                },
+              }}
+            />
+          </div>
         ) : (
           <button
             onClick={handleSignIn}
@@ -111,6 +84,5 @@ export default function NavigationBar() {
         )}
       </div>
     </motion.nav>
->>>>>>> development
   );
 }

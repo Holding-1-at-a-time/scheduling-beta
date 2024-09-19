@@ -1,5 +1,3 @@
-import { IntegrationsConfig } from '@/components/settings/integrations-config';
-// convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
@@ -300,6 +298,126 @@ export default defineSchema({
         .index("by_tenant", ["tenantId"])
         .index("by_name", ["integrationName"]),
 
+    advancedSettings: defineTable({
+        id: v.id("advancedSetting"),
+        tenantId: v.id("tenants"),
+        isAdmin: v.boolean(),
+        dataRetention: v.string(),
+        defaultTimezone: v.string(),
+        defaultLanguage: v.string(),
+        notificationEmail: v.boolean(),
+        notificationPhone: v.boolean(),
+        notificationTypes: v.string(),
+        dateFormat: v.string(),
+        timeFormat: v.string(),
+        currency: v.string(),
+        paymentGateway: v.string(),
+        paymentTerms: v.string(),
+        twoFactorAuth: v.boolean(),
+        passwordPolicy: v.string(),
+        integrationTypes: v.string(),
+        integrationSettings: v.boolean(),
+        customCss: v.string(),
+        customJs: v.string(),
+        analyticsEnabled: v.boolean(),
+        reportingFrequency: v.string(),
+        complianceRequirements: v.string(),
+        theme: v.string(),
+        logo: v.string(),
+        favicon: v.string(),
+        termsAndConditions: v.string(),
+        privacyPolicy: v.string(),
+    })
+        .index("by_tenantId", ["tenantId"])
+        .index("by_dataRetention", ["dataRetention"])
+        .index("by_defaultTimezone", ["defaultTimezone"])
+        .index("by_defaultLanguage", ["defaultLanguage"])
+        .index("by_notificationEmail", ["notificationEmail"])
+        .index("by_notificationPhone", ["notificationPhone"])
+        .index("by_dateFormat", ["dateFormat"])
+        .index("by_timeFormat", ["timeFormat"])
+        .index("by_currency", ["currency"])
+        .index("by_paymentGateway", ["paymentGateway"])
+        .index("by_paymentTerms", ["paymentTerms"])
+        .index("by_twoFactorAuth", ["twoFactorAuth"])
+        .index("by_passwordPolicy", ["passwordPolicy"])
+        .index("by_integrationTypes", ["integrationTypes"])
+        .index("by_customCss", ["customCss"])
+        .index("by_customJs", ["customJs"])
+        .index("by_analyticsEnabled", ["analyticsEnabled"])
+        .index("by_reportingFrequency", ["reportingFrequency"])
+        .index("by_complianceRequirements", ["complianceRequirements"]).index("by_theme", ["theme"])
+        .index("by_logo", ["logo"])
+        .index("by_favicon", ["favicon"])
+        .index("by_termsAndConditions", ["termsAndConditions"])
+        .index("by_privacyPolicy", ["privacyPolicy"])
+        .index("by_integrationSettings", ["integrationSettings"]),
+
+    usersEmbeddings: defineTable({
+        userId: v.id("users"),
+        tokenIdentifier: v.string(),
+        tenantId: v.id('tenants'),
+        email: v.string(),
+        phone: v.optional(v.string()),
+        clerkUserId: v.string(),
+        externalId: v.optional(v.string()),
+        firstName: v.string(),
+        lastName: v.string(),
+        fullName: v.string(),
+        username: v.optional(v.string()),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+        primaryEmailAddress: v.string(),
+        primaryPhoneNumber: v.optional(v.string()),
+        primaryWeb3Wallet: v.optional(v.string()),
+        emailVerified: v.boolean(),
+        phoneNumberVerified: v.optional(v.boolean()),
+        imageUrl: v.optional(v.string()),
+        hasImage: v.boolean(),
+        twoFactorEnabled: v.boolean(),
+        publicMetadata: v.optional(v.any()),
+        organizations: v.array(v.object({
+            orgId: v.id("organizations"),
+            role: v.string(),
+            name: v.string(),
+            slug: v.string(),
+            imageUrl: v.optional(v.string()),
+            hasImage: v.boolean(),
+            permissions: v.array(v.string()),
+            publicMetadata: v.optional(v.any()),
+        }),
+        ),
+        embedding: v.array(v.number()),
+    })
+
+        .vectorIndex("by_embedding", {
+            vectorField: "embedding",
+            dimensions: 1532,
+            filterFields: [
+                'tenantId',
+                'email',
+                'phone',
+                'clerkUserId',
+                'externalId',
+                'firstName',
+                'lastName',
+                'fullName',
+                'username',
+                'createdAt',
+                'updatedAt',
+                'primaryEmailAddress',
+                'primaryPhoneNumber',
+                'primaryWeb3Wallet',
+                'emailVerified',
+                'phoneNumberVerified',
+                'imageUrl',
+                'hasImage',
+                'twoFactorEnabled',
+                'publicMetadata',
+                'organizations',
+            ]
+        }),
+
     vehiclesEmbeddings: defineTable({
         tenantId: v.id('tenants'),
         clientId: v.id('clients'),
@@ -393,4 +511,88 @@ export default defineSchema({
         .index("by_revenue", ["revenue"])
         .index("by_new_customers", ["newCustomers"])
         .index("by_new_appointments", ["newAppointments"]),
+
+    advancedSettingsEmbeddings: defineTable({
+        id: v.id("advancedSettingsembeddings"),
+        tenantId: v.id("tenants"),
+        isAdmin: v.boolean(),
+        dataRetention: v.string(),
+        defaultTimezone: v.string(),
+        defaultLanguage: v.string(),
+        notificationEmail: v.boolean(),
+        notificationPhone: v.boolean(),
+        notificationTypes: v.string(),
+        dateFormat: v.string(),
+        timeFormat: v.string(),
+        currency: v.string(),
+        paymentGateway: v.string(),
+        paymentTerms: v.string(),
+        twoFactorAuth: v.boolean(),
+        passwordPolicy: v.string(),
+        integrationTypes: v.string(),
+        integrationSettings: v.boolean(),
+        customCss: v.string(),
+        customJs: v.string(),
+        analyticsEnabled: v.boolean(),
+        reportingFrequency: v.string(),
+        complianceRequirements: v.string(),
+        theme: v.string(),
+        logo: v.string(),
+        favicon: v.string(),
+        termsAndConditions: v.string(),
+        privacyPolicy: v.string(),
+        embedding: v.array(v.number()),
+    })
+        .vectorIndex("embedding_index", {
+            vectorField: "embedding",
+            dimensions: 1532,
+            filterFields: [
+                'dataRetention',
+                'defaultTimezone',
+                'defaultLanguage',
+                'dateFormat',
+                'timeFormat',
+                'currency',
+                'paymentGateway',
+                'paymentTerms',
+                'passwordPolicy',
+                'integrationTypes',
+                'customCss',
+                'customJs',
+                'analyticsEnabled',
+                'reportingFrequency',
+                'complianceRequirements',
+                'theme',
+                'logo',
+                'favicon',
+                'termsAndConditions',
+                'privacyPolicy',
+            ],
+        }),
+
+    organizationsEmbeddings: defineTable({
+        organizationsEmeddingId: v.id("organizationsEmbedding"),
+        tenantId: v.id('tenants'),
+        name: v.string(),
+        description: v.string(),
+        imageUrl: v.optional(v.string()),
+        hasImage: v.boolean(),
+        publicMetadata: v.optional(v.any()),
+        permissions: v.array(v.string()),
+        slug: v.string(),
+        embedding: v.array(v.number()),
+    })
+        .vectorIndex("embedding_index", {
+            vectorField: "embedding",
+            dimensions: 1532,
+            filterFields: [
+                'name',
+                'description',
+                'imageUrl',
+                'hasImage',
+                'publicMetadata',
+                'permissions',
+                'slug',
+            ],
+        })
 });
