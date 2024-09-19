@@ -4,9 +4,9 @@ import { ConvexReactClient } from "convex/react";
 import type { Metadata } from "next";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { Libre_Baskerville, Poppins } from 'next/font/google';
-import ConvexClerkProvider from "./ConvexClerkProvider";
 import NavigationBar from '@/components/Navigation-Bar';
 import "./globals.css";
+import ConvexClerkProvider from "./ConvexClerkProvider";
 
 const fontHeading = Libre_Baskerville({
   subsets: ['latin'],

@@ -1,4 +1,3 @@
-// components/navigation-bar.tsx
 "use client";
 
 import { UserButton, useUser } from "@clerk/nextjs";
@@ -18,7 +17,7 @@ const navItems = [
 ];
 
 export default function NavigationBar() {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,20 +31,13 @@ export default function NavigationBar() {
   }, []);
 
   if (!isLoaded) {
-    return <div className="h-16 bg-primary animate-pulse" />;
+    return <div className="h-16 bg-primary animate-pulse" aria-label="Loading navigation bar" />;
   }
 
   const handleSignIn = () => {
     router.push("/sign-in");
   };
 
-  const handleSignOut = () => {
-    router.push("/");
-    toast({
-      title: "Signed out successfully",
-      description: "We hope to see you again soon!",
-    });
-  };
 
   return (
     <motion.nav
@@ -63,14 +55,24 @@ export default function NavigationBar() {
             className={`flex items-center space-x-2 text-white transition-colors duration-200 hover:text-primary-light ${pathname === item.href ? "font-bold" : ""
               }`}
           >
-            <item.icon className="w-5 h-5" />
+            <item.icon className="w-5 h-5" aria-hidden="true" />
             <span className="hidden md:inline">{item.label}</span>
           </Link>
         ))}
       </div>
       <div className="flex items-center space-x-4">
         {isSignedIn ? (
-          <UserButton signOutCallback={handleSignOut} />
+          <div className="flex items-center space-x-4">
+            <span className="text-white hidden md:inline">Hello, {user.fullName}!</span>
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "w-10 h-10",
+                },
+              }}
+            />
+          </div>
         ) : (
           <button
             onClick={handleSignIn}
@@ -82,4 +84,14 @@ export default function NavigationBar() {
       </div>
     </motion.nav>
   );
+
+  function newFunction() {
+    return () => {
+      router.push("/");
+      toast({
+        title: "Signed out successfully",
+        description: "We hope to see you again soon!",
+      });
+    };
+  }
 }
