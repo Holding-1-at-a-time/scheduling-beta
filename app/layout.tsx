@@ -7,6 +7,7 @@ import { Libre_Baskerville, Poppins } from 'next/font/google';
 import NavigationBar from '@/components/Navigation-Bar';
 import "./globals.css";
 import ConvexClerkProvider from "./ConvexClerkProvider";
+import { ThemeProvider } from "@/components/Theme-Provider";
 
 const fontHeading = Libre_Baskerville({
   subsets: ['latin'],
@@ -38,18 +39,25 @@ export default function RootLayout({
       <ConvexClerkProvider>
         <html lang="en" className={`${fontHeading.variable} ${fontBody.variable}`}>
           <body className={fontBody.className}>
-            <ErrorBoundary errorComponent={ErrorFallback}>
-              <div className="flex flex-col min-h-screen">
-                <NavigationBar />
-                <main className="flex-grow">
-                  {children}
-                </main>
-                <footer className="py-4 text-center bg-gray-100">
-                  <p>&copy; {new Date().getFullYear()} Detail Synce. All rights reserved.</p>
-                </footer>
-              </div>
-            </ErrorBoundary>
-            <Toaster />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ErrorBoundary errorComponent={ErrorFallback}>
+                <div className="flex flex-col min-h-screen">
+                  <NavigationBar />
+                  <main className="flex-grow">
+                    {children}
+                  </main>
+                  <footer className="py-4 text-center bg-gray-100">
+                    <p>&copy; {new Date().getFullYear()} Detail Synce. All rights reserved.</p>
+                  </footer>
+                </div>
+              </ErrorBoundary>
+              <Toaster />
+            </ThemeProvider>
           </body>
         </html>
       </ConvexClerkProvider>
