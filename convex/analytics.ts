@@ -1,175 +1,140 @@
 import { query } from './_generated/server'
 import { v } from 'convex/values'
-import { getTenantId } from './auth'
+import { Id } from './_generated/dataModel'
 
-interface Appointment {
-    userId: string;
-    status: string;
-    price: number;
-    date: Date;
-    serviceName: string;
+interface AppointmentData {
+    _id: Id<'appointments'>;
+    userId: Id<'users'>;
+    tenantId: Id<'tenants'>;
+    status: 'completed' | 'no-show' | 'scheduled' | 'canceled' | 'pending' | 'rescheduled' | 'in_progress';
+    servicePrice: number;
+    date: number;
 }
 
-interface Review {
-    userId: string;
-    rating: number;
-}
-
-interface Service {
-    revenue: number;
-    status: string;
-}
-
-interface AnalyticsData {
-    date: Date;
-    revenue: number;
+interface BusinessMetrics {
+    totalRevenue: number;
     completedServices: number;
-    noShows: number;
-    ratings: number[];
+    noShowRate: number;
+    averageRating: number;
 }
 
-interface ServiceUsage {
-    serviceId: string;
-}
-
-interface ServiceBreakdown {
-    name: string;
-    value: number;
+interface RevenueDataPoint {
+    date: string;
+    revenue: number;
 }
 
 export const getBusinessMetrics = query({
     args: {
         tenantId: v.id('tenants'),
-        userId: v.id('users'),
-        customerId: v.string(),
-        status: v.string(),
-        service: v.string(),
-        servicesName: v.string(),
-        serviceId: v.id('services'),
-        serviceBreakdown: v.array(v.string()),
     },
-    async handler(ctx) {
-        const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
+    async handler(ctx, args): Promise<BusinessMetrics> {
+        const { tenantId } = args;
 
-        const userId = identity.subjec
-
-
-        // Fetch metrics from the database
-        const completedAppointments = (await ctx.db
+        const completedAppointments = await ctx.db
             .query('appointments')
-            .filter(q => q.eq(q.field('userId'), userId))
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
             .filter(q => q.eq(q.field('status'), 'completed'))
-            .collect()) ?? []
+            .collect() as AppointmentData[];
 
-        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum  appointment.price, 0)
+        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.servicePrice, 0);
 
+        const completedServices = completedAppointments.length;
 
-        const completedServices = (await ctx.db
+        const totalAppointments = await ctx.db
             .query('appointments')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .filter(q => q.eq(q.field('status'), 'completed'))
-            .collect()) ?? 0
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .collect() as AppointmentData[];
 
-        const totalAppointments = (await ctx.db
-            .query('appointments')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .collect()).length ?? 0
+        const noShows = totalAppointments.filter(a => a.status === 'no-show').length;
 
-        const noShows = (await ctx.db
-            .query('appointments')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .filter(q => q.eq(q.field('status'), 'no-show'))
-            .collect()).length ?? 0
-
-        const ratings = (await ctx.db
-            .query('reviews')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .collect()) ?? []
+        const ratings = await ctx.db
+            .query('assessments')
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .filter(q => q.neq(q.field('rating'), undefined))
+            .collect();
 
         const averageRating = ratings.length > 0
-            ? ratings.reduce((sum, review) => sum  review.rating, 0) / ratings.length
-            : 0
+            ? ratings.reduce((sum, review) => sum + (review.rating as number), 0) / ratings.length
+            : 0;
 
         return {
             totalRevenue,
             completedServices,
-            noShowRate: noShows / totalAppointments,
+            noShowRate: totalAppointments.length > 0 ? noShows / totalAppointments.length : 0,
             averageRating,
-        }
+        };
     },
-})
+});
 
-export const getThirtyDayRevenueData = query({
-    args: {},
-    async handler(ctx) {
-        const identity = await ctx.auth.getUserIdentity()
-        if (!identity) throw new Error('Unauthenticated')
+export const getRevenueData = query({
+    args: {
+        tenantId: v.id('tenants'),
+    },
+    async handler(ctx, args): Promise<RevenueDataPoint[]> {
+        const { tenantId } = args;
 
-        const userId = identity.subject
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        // Fetch revenue data for the last 30 days
-        const thirtyDaysAgo = new Date()
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-        const appointments = (await ctx.db
+        const appointments = await ctx.db
             .query('appointments')
-            .filter(q => q.eq(q.field('userId'), userId))
-            .filter(q => q.gte(q.field('date'), thirtyDaysAgo))
+            .filter(q => q.eq(q.field('tenantId'), tenantId))
+            .filter(q => q.gte(q.field('date'), thirtyDaysAgo.getTime()))
             .filter(q => q.eq(q.field('status'), 'completed'))
-            .collect()) ?? []
+            .collect() as AppointmentData[];
 
-        // Group appointments by date and sum the revenue
-        const revenueByDate = appointments.reduce
-    }
+        const revenueByDate = appointments.reduce<Record<string, number>>((acc, appointment) => {
+            const date = new Date(appointment.date).toISOString().split('T')[0];
+            acc[date] = (acc[date] || 0) + appointment.servicePrice;
+            return acc;
+        }, {});
+
+        return Object.entries(revenueByDate).map(([date, revenue]) => ({ date, revenue }));
+    },
 });
 
 export const getAnalyticsData = query({
     args: {
         tenantId: v.id('tenants'),
     },
-    async handler(ctx, { tenantId }) {
-        // Fetch completed appointments for the tenant
-        const completedAppointments = (await ctx.db
+    async handler(ctx, args): Promise<BusinessMetrics> {
+        const { tenantId } = args;
+
+        const completedAppointments = await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
             .filter(q => q.eq(q.field('status'), 'completed'))
-            .collect()) ?? [];
+            .collect() as AppointmentData[];
 
-        // Calculate total revenue
-        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum  appointment.price, 0);
+        const totalRevenue = completedAppointments.reduce((sum, appointment) => sum + appointment.servicePrice, 0);
 
-        // Calculate completed services
         const completedServices = completedAppointments.length;
 
-        // Calculate no shows
-        const noShows = (await ctx.db
+        const noShows = await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
             .filter(q => q.eq(q.field('status'), 'no-show'))
-            .count()) ?? 0;
+            .collect() as AppointmentData[];
 
-        // Calculate total appointments
-        const totalAppointments = (await ctx.db
+        const totalAppointments = await ctx.db
             .query('appointments')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
-            .count()) ?? 0;
+            .collect() as AppointmentData[];
 
-        // Fetch reviews for the tenant
-        const reviews = (await ctx.db
-            .query('reviews')
+        const ratings = await ctx.db
+            .query('assessments')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
-            .collect()) ?? [];
+            .filter(q => q.neq(q.field('rating'), undefined))
+            .collect();
 
-        // Calculate average rating
-        const averageRating = reviews.length > 0
-            ? reviews.reduce((sum, review) => sum  review.rating, 0) / reviews.length
+        const averageRating = ratings.length > 0
+            ? ratings.reduce((sum, review) => sum + (review.rating as number), 0) / ratings.length
             : 0;
 
         return {
             totalRevenue,
             completedServices,
-            noShowRate: totalAppointments > 0 ? noShows / totalAppointments : 0,
+            noShowRate: totalAppointments.length > 0 ? noShows.length / totalAppointments.length : 0,
             averageRating,
         };
     },

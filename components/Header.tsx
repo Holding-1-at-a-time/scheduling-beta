@@ -2,14 +2,14 @@
 "use client"
 
 import Link from 'next/link'
-import { useTheme } from 'next-themes'
+import { ThemeProvider } from '@/components/Theme-Provider'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { MountainIcon, SunIcon, MoonIcon } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 
 export function Header() {
-  const { setTheme } = useTheme()
+  const { setTheme } = ThemeProvider()
 
   return (
     <header className="bg-primary text-primary-foreground py-4 px-6 flex items-center justify-between animated-3d">

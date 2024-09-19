@@ -3,24 +3,7 @@ import { v } from 'convex/values'
 import { Id } from './_generated/dataModel'
 
 export const getPreviousServices = query({
-    args: {
-        vehicleId: v.string(),
-        userId: v.id('users'),
-        organizationId: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const { vehicleId, userId, organizationId } = args
-        return await ctx.db
-                    .query('services')
-                    .filter(q =>
-                        q.eq(q.field('vehicleId'), vehicleId) &&
-                        q.eq(q.field('userId'), userId) &&
-                        q.eq(q.field('organizationId'), organizationId)
-                    )
-                    .order('desc')
-                    .take(10);
-
-    },
+    // ... existing code ...
 })
 
 export const createBooking = mutation({
@@ -35,19 +18,31 @@ export const createBooking = mutation({
         }),
     },
     handler: async (ctx, args) => {
-        const { serviceId, vehicleId, userId, organizationId, slot } = args
-        return {
-            await ctx.db.insert('bookings', {
-                    serviceId,
-                    vehicleId,
-                    userId,
-                    organizationId,
-                    slot,
-                    status: 'confirmed',
-                    createdAt: new Date().toISOString(),
-            }
-        }
-    }
-);
+        const { serviceId, vehicleId, userId, organizationId, slot } = args;
+        const bookingId = await ctx.db.insert('bookings', {
+            serviceId,
+            vehicleId,
+            userId,
+            organizationId,
+            slot,
+            status: 'confirmed',
+            createdAt: new Date().toISOString(),
+        });
+        return { bookingId };
     },
-})
+});
+
+export const create = mutation({
+    args: {
+        // Define your argument schema here
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Unauthenticated");
+        }
+        await ctx.db.insert('bookings', {
+            // ... booking data ...
+        });
+    },
+});

@@ -1,6 +1,10 @@
 // components/quote-form.tsx
 'use client'
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> development
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -11,11 +15,14 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import ImageUpload from './ImageUpload'
 import QuoteEstimate from './QuoteEstimate'
+<<<<<<< HEAD
+=======
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { useUser } from '@clerk/nextjs'
 import { toast } from '@/components/ui/use-toast'
 import { Spinner } from '@/components/ui/spinner'
+>>>>>>> development
 
 const formSchema = z.object({
     vehicleType: z.enum(['sedan', 'suv', 'truck', 'van']),
@@ -27,7 +34,11 @@ type FormData = z.infer<typeof formSchema>
 
 export default function QuoteForm() {
     const [isLoading, setIsLoading] = useState(false)
+<<<<<<< HEAD
+    const [quoteEstimate, setQuoteEstimate] = useState<number | null>(null),
+=======
     const [quoteEstimate, setQuoteEstimate] = useState<{ amount: number; confidence: 'low' | 'medium' | 'high'; quoteId: string } | null>(null)
+>>>>>>> development
     const router = useRouter()
     const { user } = useUser()
     const processQuote = useMutation(api.quotes.processQuote)

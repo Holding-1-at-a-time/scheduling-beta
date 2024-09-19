@@ -6,6 +6,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+<<<<<<< HEAD
+=======
 import { toast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
@@ -14,12 +16,24 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Spinner } from "@/components/ui/spinner";
+>>>>>>> development
 
 interface Slot {
   id: string;
   time: string;
 }
 
+<<<<<<< HEAD
+export function IntelligentSchedulingSystem() {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const availableSlots = useQuery(api.scheduling.getAvailableSlots, selectedDate ? { date: selectedDate } : 'skip');
+  const bookAppointment = useMutation(api.scheduling.bookAppointment);
+
+  const handleBooking = async (slot: Slot) => {
+    if (selectedDate) {
+      await bookAppointment({ date: selectedDate, slotId: slot.id });
+      // Handle confirmation, perhaps send an email or SMS
+=======
 const bookingSchema = z.object({
   clientName: z.string().min(1, "Name is required"),
   clientEmail: z.string().email("Invalid email address"),
@@ -59,6 +73,7 @@ export function IntelligentSchedulingSystem() {
     } catch (error) {
       console.error('Error booking appointment:', error);
       toast({ title: "Failed to book appointment", variant: "destructive" });
+>>>>>>> development
     }
   };
 
@@ -71,6 +86,14 @@ export function IntelligentSchedulingSystem() {
         className="rounded-md border"
       />
       <div className="grid grid-cols-3 gap-2">
+<<<<<<< HEAD
+        {availableSlots?.map((slot) => (
+          <Button key={slot.id} onClick={() => handleBooking(slot)}>
+            {slot.time}
+          </Button>
+        ))}
+      </div>
+=======
         {availableSlots === undefined ? (
           <Spinner />
         ) : availableSlots === null ? (
@@ -130,6 +153,7 @@ export function IntelligentSchedulingSystem() {
           </Form>
         </DialogContent>
       </Dialog>
+>>>>>>> development
     </div>
   );
 }

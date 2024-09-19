@@ -6,13 +6,13 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { cn } from "@/lib/utils";
 import { HomeIcon, UsersIcon, SettingsIcon, BarChartIcon, MessageSquareIcon } from 'lucide-react';
-import { toolIcon } from './Icons';
+import { ToolIcon } from '@/public/Icons';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: HomeIcon },
   { href: '/admin/users', label: 'Users', icon: UsersIcon },
   { href: '/admin/settings', label: 'Settings', icon: SettingsIcon },
-  { href: '/admin/services', label: 'Services', icon: toolIcon },
+  { href: '/admin/services', label: 'Services', icon: ToolIcon },
   { href: '/admin/reports', label: 'Reports', icon: BarChartIcon },
   { href: '/admin/messages', label: 'Messages', icon: MessageSquareIcon },
 ];

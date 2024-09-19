@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { validateVIN } from '@/convex/vinscanner';
+import { onScan, validateVIN } from '@/convex/vinscanner';
 
 interface VINScannerProps {
     onScan: (vin: string) => void;

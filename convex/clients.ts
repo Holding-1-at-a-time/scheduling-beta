@@ -1,22 +1,51 @@
 import { mutation, query } from './_generated/server'
 import { v } from 'convex/values'
-import { Id } from './_generated/dataModel'
+import { MutationCtx, QueryCtx } from './_generated/server'
+import { Doc, Id } from './_generated/dataModel'
+
+interface AddClientArgs {
+    tenantId: Id<'tenants'>;
+    name: string;
+    email: string;
+    phone: string;
+}
+
+interface ClientDoc extends Omit<AddClientArgs, 'tenantId'> {
+    tenantId: Id<'tenants'>;
+    city: string;
+    address: string;
+    state: string;
+    zip: string;
+}
+
+interface ListClientsArgs {
+    tenantId: Id<'tenants'>;
+    page: number;
+    pageSize: number;
+}
+
+interface UpdateClientArgs {
+    id: Id<'clients'>;
+    name?: string;
+    email?: string;
+    phone?: string;
+}
 
 export const list = query({
     args: { tenantId: v.id('tenants'), page: v.number(), pageSize: v.number() },
-    handler: async (ctx, args) => {
-        const { tenantId, page, pageSize } = args
-        const skip = (page - 1) * pageSize
+    handler: async (ctx: QueryCtx, args: ListClientsArgs) => {
+        const { tenantId, page, pageSize } = args;
+        const skip = (page - 1) * pageSize;
 
         const clients = await ctx.db
             .query('clients')
             .filter(q => q.eq(q.field('tenantId'), tenantId))
             .order('desc')
-            .paginate({ numItems: pageSize, cursor: skip.toString() })
+            .paginate({ numItems: pageSize, cursor: skip.toString() });
 
-        return clients.page
+        return clients.page;
     },
-})
+});
 
 export const add = mutation({
     args: {
@@ -25,12 +54,21 @@ export const add = mutation({
         email: v.string(),
         phone: v.string(),
     },
-    handler: async (ctx, args) => {
-        const { tenantId, name, email, phone } = args
-        const newClient = await ctx.db.insert('clients', { tenantId, name, email, phone })
-        return newClient
+    handler: async (ctx: MutationCtx, args: AddClientArgs): Promise<Id<'clients'>> => {
+        const { tenantId, name, email, phone } = args;
+        const newClient: ClientDoc = {
+            tenantId,
+            name,
+            email,
+            phone,
+            city: '',
+            address: '',
+            state: '',
+            zip: ''
+        };
+        return await ctx.db.insert('clients', newClient);
     },
-})
+});
 
 export const update = mutation({
     args: {
@@ -39,17 +77,16 @@ export const update = mutation({
         email: v.optional(v.string()),
         phone: v.optional(v.string()),
     },
-    handler: async (ctx, args) => {
-        const { id, ...updateData } = args
-        const updatedClient = await ctx.db.patch(id, updateData)
-        return updatedClient
+    handler: async (ctx: MutationCtx, args: UpdateClientArgs): Promise<void> => {
+        const { id, ...updateData } = args;
+        await ctx.db.patch(id, updateData);
     },
-})
+});
 
 export const remove = mutation({
     args: { id: v.id('clients') },
-    handler: async (ctx, args) => {
-        const { id } = args
-        await ctx.db.delete(id)
+    handler: async (ctx: MutationCtx, args: { id: Id<'clients'> }): Promise<void> => {
+        const { id } = args;
+        await ctx.db.delete(id);
     },
-})
+});

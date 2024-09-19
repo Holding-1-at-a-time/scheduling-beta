@@ -46,7 +46,7 @@ export const processQuote = mutation({
                 break
         }
 
-        const estimatedPrice = basePrice * conditionMultiplier * (1  images.length * 0.05)
+        const estimatedPrice = basePrice * conditionMultiplier * (1 + images.length * 0.05)
 
         // Determine confidence level based on number of images
         let confidence: 'low' | 'medium' | 'high' = 'low'

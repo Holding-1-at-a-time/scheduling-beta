@@ -1,17 +1,16 @@
-import { useAuth } from '@clerk/nextjs';
-import { Id } from './_generated/dataModel.d';
-// convex/vehicles.ts
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { Id } from './_generated/dataModel';
 
 interface Vehicle {
-    tenantId: Id<"tenants">;
-    vin: string;
-    make: string;
-    model: string;
-    year: number;
-    createdAt: string;
-    updatedAt: string;
+    vehicleId: v.id<'vehicles'>;
+    tenantId: v.Id<"tenants">;
+    vin: v.string;
+    make: v.string;
+    model: v.string;
+    year: v.number;
+    createdAt: v.number;
+    updatedAt: v.number;
 }
 
 export const createVehicleProfile = mutation({
@@ -21,20 +20,21 @@ export const createVehicleProfile = mutation({
         make: v.string(),
         model: v.string(),
         year: v.number(),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+        
     },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<Vehicle> => {
         const { tenantId, vin, make, model, year } = args;
 
-        // Validate tenant
         const tenant = await ctx.db
             .query("tenants")
-            .filter((q) => q.eq(q.field("tenantId"), tenantId))
+            .filter((q) => q.eq(q.field("_id"), tenantId))
             .unique();
         if (!tenant) {
             throw new Error("Tenant not found");
         }
 
-        // Check if VIN already exists for this tenant
         const existingVehicle = await ctx.db
             .query("vehicles")
             .filter((q) => q.and(q.eq(q.field("tenantId"), tenantId), q.eq(q.field("vin"), vin)))
@@ -43,24 +43,24 @@ export const createVehicleProfile = mutation({
             throw new Error("Vehicle with this VIN already exists");
         }
 
-        // Create new vehicle profile
+        const now = Date.now();
         const vehicleId = await ctx.db.insert("vehicles", {
             tenantId,
             vin,
             make,
             model,
             year,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: now,
+            updatedAt: now,
         });
 
-        return { id: vehicleId, vin, make, model, year };
+        return { _id: vehicleId, tenantId, vin, make, model, year, createdAt: now, updatedAt: now };
     },
 });
 
 export const getVehicleByVIN = query({
     args: { tenantId: v.id('tenants'), vin: v.string() },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<Vehicle | null> => {
         const { tenantId, vin } = args;
 
         const vehicle = await ctx.db
@@ -68,30 +68,25 @@ export const getVehicleByVIN = query({
             .filter((q) => q.and(q.eq(q.field("tenantId"), tenantId), q.eq(q.field("vin"), vin)))
             .unique();
 
-        if (!vehicle) {
-            throw new Error("Vehicle not found");
-        }
-
         return vehicle;
     },
 });
 
+interface DecodedVINInfo {
+    make: string;
+    model: string;
+    year: number;
+}
+
 export const decodeVIN = mutation({
     args: { vin: v.string() },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args): Promise<DecodedVINInfo> => {
         const { vin } = args;
-
-        // In a real-world scenario, you would integrate with a VIN decoding service here
-        // For this example, we'll simulate a VIN decoding process
-        const decodedInfo = await simulateVINDecoding(vin);
-
-        return decodedInfo;
+        return await simulateVINDecoding(vin);
     },
 });
 
-async function simulateVINDecoding(vin: string): Promise<{ make: string; model: string; year: number }> {
-    // This is a placeholder function to simulate VIN decoding
-    // In a real application, you would integrate with a VIN decoding service
+async function simulateVINDecoding(vin: string): Promise<DecodedVINInfo> {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve({
@@ -104,8 +99,8 @@ async function simulateVINDecoding(vin: string): Promise<{ make: string; model: 
 }
 
 export const validateVIN = mutation({
-    args: { vin: v.string(), useAuth:  },
-    handler: async (ctx, args) => {
+    args: { vin: v.string() },
+    handler: async (ctx, args): Promise<boolean> => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) {
             throw new Error("Unauthorized");
@@ -113,17 +108,15 @@ export const validateVIN = mutation({
 
         const { vin } = args;
 
-        // Basic VIN validation
         const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
         if (!vinRegex.test(vin)) {
             return false;
         }
 
-        // Check for VIN uniqueness within the tenant
         const existingVehicle = await ctx.db
             .query("vehicles")
             .withIndex("by_vin_and_tenantId", (q) =>
-                q.eq("vin", vin).eq("tenantId", identity.tokenIdentifier)
+                q.eq("vin", vin).eq("tenantId", identity.tokenIdentifier as Id<"tenants">)
             )
             .unique();
 
@@ -131,37 +124,39 @@ export const validateVIN = mutation({
             throw new Error("VIN already exists for this tenant");
         }
 
-        // In a real-world scenario, you might want to make an API call to a VIN decoding service here
-        // to verify the VIN and get additional vehicle information
-
         return true;
     },
 });
 
+interface ScannedVIN {
+    _id: Id<"vin">;
+    vin: string;
+    userId: Id<"users">;
+    scannedAt: number;
+}
 
 export const onScan = mutation({
-    args: { vin: String },
-    handler: async ({ db, auth }, { vin }) => {
-        // Get the current user's ID
-        const userId = await auth.getUserIdentity()?.id;
-        if (!userId) {
+    args: { vin: v.string() },
+    handler: async (ctx, args): Promise<ScannedVIN> => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
             throw new Error("Unauthorized");
         }
 
-        // Validate the VIN
-        const isValid = await validateVIN({ vin });
+        const { vin } = args;
+
+        const isValid = await validateVIN.handler(ctx, { vin });
         if (!isValid) {
             throw new Error("Invalid VIN");
         }
 
-        // Save the scanned VIN to the database
-        const vinDoc = await db.insert("vin", {
+        const scannedAt = Date.now();
+        const vinDocId = await ctx.db.insert("vin", {
             vin,
-            userId,
-            scannedAt: new Date(),
+            userId: identity.subject as Id<"users">,
+            scannedAt,
         });
 
-        // Return the saved VIN document
-        return vinDoc;
+        return { _id: vinDocId, vin, userId: identity.subject as Id<"users">, scannedAt };
     },
 });

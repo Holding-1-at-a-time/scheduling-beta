@@ -17,9 +17,14 @@ export function BookingConfirmation() {
     const { toast } = useToast();
 
     const handleSendEmail = async () => {
+<<<<<<< HEAD
+        if (!bookingDetails) return;
+
+=======
         if (!bookingDetails) {
             return;
         }
+>>>>>>> development
         try {
             await sendConfirmationEmail({ bookingId });
             toast({
@@ -68,4 +73,8 @@ export function BookingConfirmation() {
             </CardContent>
         </Card>
     );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> development

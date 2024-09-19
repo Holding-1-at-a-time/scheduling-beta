@@ -37,7 +37,7 @@ export const getRevenueData = query({
 
     const revenueData = appointments.reduce((acc, apt) => {
       const date = new Date(apt.date).toISOString().split('T')[0]
-      acc[date] = (acc[date] || 0)  apt.revenue
+      acc[date] = (acc[date] || 0) + apt.revenue
       return acc
     }, {} as Record<string, number>)
 
@@ -65,7 +65,7 @@ export const getCustomerRetention = query({
       if (customerAppointments.length > 1) {
         const lastAppointmentDate = new Date(Math.max(...customerAppointments.map(apt => new Date(apt.date).getTime())))
         const date = lastAppointmentDate.toISOString().split('T')[0]
-        acc[date] = (acc[date] || 0)  1
+        acc[date] = (acc[date] || 0) + 1
       }
       return acc
     }, {} as Record<string, number>)

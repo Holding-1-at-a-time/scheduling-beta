@@ -19,7 +19,11 @@ export function AppointmentCalendar({ customerId, serviceId }: AppointmentCalend
 
     const startDate = new Date();
     const endDate = new Date();
+<<<<<<< HEAD
+    endDate.setMonth(endDate.getMonth() + 1);
+=======
     endDate.setMonth(endDate.getMonth()  1);
+>>>>>>> development
 
     const availableSlots = useQuery(api.appointments.getAvailableSlots, {
         startDate: startDate.getTime(),
@@ -33,9 +37,13 @@ export function AppointmentCalendar({ customerId, serviceId }: AppointmentCalend
     }, []);
 
     const handleBookAppointment = useCallback(async () => {
+<<<<<<< HEAD
+        if (!selectedDate) return;
+=======
         if (!selectedDate) {
             return
         };
+>>>>>>> development
 
         setIsBooking(true);
         try {
@@ -82,4 +90,8 @@ export function AppointmentCalendar({ customerId, serviceId }: AppointmentCalend
             </Button>
         </div>
     );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> development

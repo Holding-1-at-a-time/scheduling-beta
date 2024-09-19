@@ -36,6 +36,9 @@ export const calculateEstimate = mutation({
     }),
     tenantId: v.id('tenants'),
   },
+  handler: async (ctx, args) => {
+    // Implementation here
+  },
 });
 
 export const handler = mutation({
@@ -86,7 +89,7 @@ export const handler = mutation({
 
       return { estimatedTotal, detailedAnalysis };
     } catch (error) {
-  const {basePrice} = vehicleDetails;
+      const { basePrice } = vehicleDetails;
       throw new Error('Failed to calculate estimate');
     }
   },
@@ -95,23 +98,24 @@ export const handler = mutation({
 function calculateEstimatedTotal(
   vehicleDetails: VehicleDetailsType,
   selectedServices: Array<ServiceType>,
-  return basePrice + serviceCost + customizationCost;
-
+  customizations: CustomizationsType
+): number {
+  const { basePrice } = vehicleDetails;
 
   // Calculate the total cost of selected services
   const serviceCost = selectedServices.reduce(
-    (acc, service) => acc  service.price,
+    (acc, service) => acc + service.price,
     0
   );
 
   // Calculate the total cost of customizations
   const customizationCost = Object.values(customizations).reduce(
-    (acc, customization) => acc  (customization.price || 0),
+    (acc, customization) => acc + (customization.price || 0),
     0
   );
 
   // Calculate the estimated total
-  return basePrice  serviceCost  customizationCost;
+  return basePrice + serviceCost + customizationCost;
 }
 
 function generateDetailedAnalysis(
@@ -155,3 +159,47 @@ async function getTenantConfig(
     return null;
   }
 }
+
+// Helper function to retrieve the cached tenant config
+async function getCachedTenantConfig(tenantId: string): Promise<TenantConfigType | null> {
+  // Assuming you have a caching mechanism like Redis or Memcached
+  const cacheKey = `tenant-config:${tenantId}`;
+  const cachedConfig = await cache.get(cacheKey);
+  return cachedConfig ? JSON.parse(cachedConfig) : null;
+}
+
+// Helper function to cache the tenant config
+async function cacheTenantConfig(tenantId: string, tenantConfig: TenantConfigType) {
+  // Assuming you have a caching mechanism like Redis or Memcached
+  const cacheKey = `tenant-config:${tenantId}`;
+  await cache.set(cacheKey, JSON.stringify(tenantConfig));  
+  
+  return tenantConfig;
+}
+
+// Replace the problematic function with:
+function calculateTotalPrice(basePrice: number, services: Service[], customizations: Customization[]): number {
+  const serviceCost = services.reduce((acc, service) => acc + service.price, 0);
+  const customizationCost = customizations.reduce((acc, customization) => acc + customization.price, 0);
+  return basePrice + serviceCost + customizationCost;
+}
+
+export const generate = mutation({
+  args: {
+    make: v.string(),
+    model: v.string(),
+    year: v.string(),
+    condition: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Implement AI-based estimation logic here
+    // This is a placeholder implementation
+    const estimatedCost = Math.floor(Math.random() * 500) + 100
+    const estimatedDuration = Math.floor(Math.random() * 4) + 1
+
+    return {
+      cost: estimatedCost,
+      duration: estimatedDuration,
+    }
+  },
+})

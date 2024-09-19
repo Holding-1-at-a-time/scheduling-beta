@@ -4,8 +4,13 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+<<<<<<< HEAD
+import { useToast } from '@/components/ui/use-toast';
+import { Spinner } from '@/components/ui/spinner';
+=======
 import { toast, useToast } from '@/components/ui/use-toast';
 import { Spinner } from '@/components/SpinnerComponent';
+>>>>>>> development
 
 interface Appointment {
     id: string;
@@ -15,6 +20,14 @@ interface Appointment {
     isPaid: boolean;
 }
 
+<<<<<<< HEAD
+export function AppointmentList() {
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
+    const { toast } = useToast();
+
+    const appointmentsQuery = useQuery(api.appointments.listPaginated, { page, pageSize });
+=======
 export const AppointmentList = ()=> {
     const [page, setPage] = useState(1);  
     const handlePageChange = (newPage: number) => {  
@@ -45,6 +58,7 @@ export const AppointmentList = ()=> {
         }
     };
     const appointmentsQuery = useQuery(api.appointments.list, { page, pageSize });
+>>>>>>> development
     const updateAppointmentStatus = useMutation(api.appointments.updateStatus);
 
     const handleStatusUpdate = async (id: string, newStatus: 'completed' | 'no-show') => {
@@ -115,10 +129,18 @@ export const AppointmentList = ()=> {
                 <Button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
                     Previous
                 </Button>
+<<<<<<< HEAD
+                <Button onClick={() => setPage(p => p + 1)} disabled={!hasMore}>
+=======
                 <Button onClick={() => setPage(p => p  1)} disabled={!hasMore}>
+>>>>>>> development
                     Next
                 </Button>
             </div>
         </div>
     );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> development

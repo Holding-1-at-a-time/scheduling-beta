@@ -1,6 +1,10 @@
 // components/analytics.tsx
 import React from 'react';
+<<<<<<< HEAD
+import { useQuery } from 'convex/react';
+=======
 import { useQuery as useConvexQuery } from 'convex/react';
+>>>>>>> development
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Line } from 'react-chartjs-2';
@@ -9,6 +13,24 @@ import { BusinessInsights } from './Business-Insights';
 import { PerformanceMetrics } from './Performance-Matrics';
 import AnalyticsOverview from './Analytics-Overview';
 
+<<<<<<< HEAD
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+export function Analytics() {
+    const analyticsData = useQuery(api.analytics.getAnalyticsData);
+    const detailedAnalytics = useQuery(api.analytics.getDetailedAnalytics);
+
+    if (!analyticsData || !detailedAnalytics) {
+        return <div>Loading analytics data...</div>;
+    }
+
+    const data = {
+        labels: analyticsData.map((item) => item.date),
+        datasets: [
+            {
+                label: 'Revenue',
+                data: analyticsData.map((item) => item.revenue),
+=======
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 export function Analytics() {
@@ -30,6 +52,7 @@ export function Analytics() {
             {
                 label: 'Revenue',
                 data: Array.isArray(analyticsData) ? analyticsData.map((item) => 'revenue' in item ? item.revenue : 0) : [],
+>>>>>>> development
                 fill: false,
                 backgroundColor: 'rgb(75, 192, 192)',
                 borderColor: 'rgba(75, 192, 192, 0.2)',
@@ -52,12 +75,16 @@ export function Analytics() {
 
     return (
         <div className="space-y-6">
+<<<<<<< HEAD
+            <AnalyticsOverview metrics={detailedAnalytics} />
+=======
             <AnalyticsOverview metrics={{
                 totalRevenue: detailedAnalytics.totalRevenue,
                 completedServices: detailedAnalytics.completedServices,
                 noShowRate: detailedAnalytics.noShowRate,
                 averageRating: detailedAnalytics.averageRating
             }} />
+>>>>>>> development
             <Card>
                 <CardHeader>
                     <CardTitle>Revenue Trend</CardTitle>
