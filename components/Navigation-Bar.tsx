@@ -1,12 +1,13 @@
 "use client";
 
 import { UserButton, useUser } from "@clerk/nextjs";
-import { HomeIcon, SettingsIcon, BarChartIcon, CalendarIcon, UsersIcon } from "lucide-react";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { toast } from "@/components/ui/use-toast";
+import { BarChartIcon, CalendarIcon, HomeIcon, SettingsIcon, UsersIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ModeToggle } from "./Mode-Toggle";
+
 
 const navItems = [
   { href: "/", icon: HomeIcon, label: "Home" },
@@ -40,6 +41,8 @@ export default function NavigationBar() {
 
 
   return (
+  <div>
+    <ModeToggle />
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 transition-all duration-300 ${isScrolled ? "bg-primary shadow-lg" : "bg-transparent"
         }`}
@@ -82,16 +85,7 @@ export default function NavigationBar() {
           </button>
         )}
       </div>
-    </motion.nav>
-  );
-
-  function newFunction() {
-    return () => {
-      router.push("/");
-      toast({
-        title: "Signed out successfully",
-        description: "We hope to see you again soon!",
-      });
-    };
-  }
-}
+    </motion.nav >
+  </div>
+  )
+};

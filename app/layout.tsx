@@ -1,6 +1,4 @@
 import { Toaster } from "@/components/ui/toaster";
-import { ClerkProvider } from '@clerk/nextjs';
-import { ConvexReactClient } from "convex/react";
 import type { Metadata } from "next";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { Libre_Baskerville, Poppins } from 'next/font/google';
@@ -27,7 +25,6 @@ export const metadata: Metadata = {
   description: "Revolutionalize One Detail Business At A Time",
 };
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export default function RootLayout({
   children,
@@ -35,33 +32,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <ConvexClerkProvider>
-        <html lang="en" className={`${fontHeading.variable} ${fontBody.variable}`}>
-          <body className={fontBody.className}>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <ErrorBoundary errorComponent={ErrorFallback}>
-                <div className="flex flex-col min-h-screen">
-                  <NavigationBar />
-                  <main className="flex-grow">
-                    {children}
-                  </main>
-                  <footer className="py-4 text-center bg-gray-100">
-                    <p>&copy; {new Date().getFullYear()} Detail Synce. All rights reserved.</p>
-                  </footer>
-                </div>
-              </ErrorBoundary>
-              <Toaster />
-            </ThemeProvider>
-          </body>
-        </html>
-      </ConvexClerkProvider>
-    </ClerkProvider>
+    <ConvexClerkProvider>
+      <html lang="en" className={`${fontHeading.variable} ${fontBody.variable}`}>
+        <body className={fontBody.className}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ErrorBoundary errorComponent={ErrorFallback}>
+              <div className="flex flex-col min-h-screen">
+                <NavigationBar />
+                <main className="flex-grow">
+                  {children}
+                </main>
+                <footer className="py-4 text-center bg-gray-100">
+                  <p>&copy; {new Date().getFullYear()} Detail Synce. All rights reserved.</p>
+                </footer>
+              </div>
+            </ErrorBoundary>
+            <Toaster />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ConvexClerkProvider>
   );
 }
 

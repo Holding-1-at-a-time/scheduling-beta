@@ -1,23 +1,58 @@
+import { Logger } from '@/lib/logger';
 // convex/advancedSettings.ts
-import { query, mutation, action } from "./_generated/server";
-import { v } from "convex/values";
-import { ConvexError } from "convex/values";
+import { ConvexError, v } from "convex/values";
+import { action, internalAction, mutation, query } from "./_generated/server";
 import { getTenantId } from "./permissions";
+
+
+interface AdvancedSettings {
+    dataRetention: string;
+    defaultTimezone: string;
+    defaultLanguage: string;
+}
+
+interface ExportData {
+    users: User[];
+    appointments: Appointment[];
+    services: Service[];
+    exportDate: string;
+}
+
+interface User {
+    // Add properties for the User type
+    id: string;
+    name: string;
+    email: string;
+}
+
+interface Appointment {
+    // Add properties for the Appointment type
+    id: string;
+    userId: string;
+    date: string;
+}
+
+interface Service {
+    // Add properties for the Service type
+    id: string;
+    name: string;
+    description: string;
+}
 
 export const get = query({
     args: {},
-    handler: async (ctx) => {
+    handler: async (ctx): Promise<AdvancedSettings | null> => {
         const tenantId = await getTenantId(ctx);
         const settings = await ctx.db
             .query("advancedSettings")
-            .withIndex("byTenantId", q => q.eq("tenantId", tenantId))
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
             .first();
 
         if (!settings) {
             return null;
         }
 
-        ctx.logger.info("Advanced settings fetched", { tenantId });
+        Logger.info("Advanced settings fetched", { tenantId });
         return settings;
     },
 });
@@ -30,11 +65,11 @@ export const update = mutation({
             defaultLanguage: v.string(),
         }),
     },
-    handler: async (ctx, args) => {
+    handler: async (ctx, args: { settings: AdvancedSettings }) => {
         const tenantId = await getTenantId(ctx);
         const existingSettings = await ctx.db
             .query("advancedSettings")
-            .withIndex("byTenantId", q => q.eq("tenantId", tenantId))
+            .withIndex("by_tenantId", (q) => q.eq("tenantId", tenantId))
             .first();
 
         try {
@@ -43,42 +78,87 @@ export const update = mutation({
             } else {
                 await ctx.db.insert("advancedSettings", {
                     tenantId,
-                    ...args.settings,
+                    isAdmin: false,
+                    notificationEmail: false,
+                    privacyPolicy: "",
+                    termsAndConditions: "",
+                    notificationTypes: "",
+                    dateFormat: "",
+                    timeFormat: "",
+                    currency: "",
+                    payment: {
+                        gateway: "",
+                        terms: "",
+                    },
+                    twoFactorAuth: false,
+                    passwordPolicy: "",
+                    integration: {
+                        css: "",
+                        js: "",
+                    },
+                    analytics: {
+                        enabled: false,
+                        reportingFrequency: "",
+                    },
+                    compliance: {
+                        requirements: "",
+                    },
+                    branding: {
+                        theme: "",
+                        logo: "",
+                        favicon: "",
+                    },
                 });
+
             }
-            ctx.logger.info("Advanced settings updated", { tenantId });
+            Logger.info("Advanced settings updated", { tenantId });
         } catch (error) {
-            ctx.logger.error("Error updating advanced settings", { error, tenantId });
+            Logger.error("Error updating advanced settings", { error, tenantId });
             throw new ConvexError("Failed to update settings");
         }
     },
 });
 
-export const exportData = action({
-    args: {},
-    handler: async (ctx) => {
+
+export const exportData = internalAction({
+    args: {
+        tenantId: v.id("tenants"),
+        users: v.array(v.object({
+            id: v.id("users"),
+            name: v.string(),
+            email: v.string(),
+        })),
+        appointments: v.array(v.object({
+            id: v.id("appointments"),
+            userId: v.id("users"),
+            date: v.string(),
+        })),
+        services: v.array(v.object({
+            id: v.id("services"),
+            name: v.string(),
+            description: v.string(),
+        })),
+    },
+    handler: async (ctx): Promise<string> => {
         const tenantId = await getTenantId(ctx);
+
         try {
             const [users, appointments, services] = await Promise.all([
-                ctx.runQuery("users.list", { tenantId }),
-                ctx.runQuery("appointments.list", { tenantId }),
-                ctx.runQuery("services.list", { tenantId }),
+                (ctx as any).db.query("users").withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId)).collect(),
+                (ctx as any).db.query("appointments").withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId)).collect(),
+                (ctx as any).db.query("services").withIndex("by_tenantId", (q: any) => q.eq("tenantId", tenantId)).collect(),
             ]);
 
-            const exportData = {
+            const exportData: ExportData = {
                 users,
                 appointments,
                 services,
                 exportDate: new Date().toISOString(),
             };
 
-            // In a real-world scenario, you'd upload this to a secure storage service
-            // and return a download URL. For this example, we're returning the data directly.
-            ctx.logger.info("Data exported", { tenantId });
             return JSON.stringify(exportData);
         } catch (error) {
-            ctx.logger.error("Error exporting data", { error, tenantId });
-            throw new ConvexError("Failed to export data");
+            throw new ConvexError("Failed to export data"); // fixed syntax error
         }
     },
 });

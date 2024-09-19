@@ -1,16 +1,6 @@
 // components/performance-metrics.tsx
 'use client'
 
-<<<<<<< HEAD
-import React from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-=======
 import React, { useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -22,7 +12,6 @@ import { Spinner } from '@/components/ui/spinner';
 import { toast } from '@/components/ui/use-toast';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
->>>>>>> development
 
 interface AppointmentDuration {
     date: string;
@@ -40,17 +29,6 @@ interface StaffProductivity {
 }
 
 export function PerformanceMetrics() {
-<<<<<<< HEAD
-    const appointmentDurations = useQuery(api.metrics.getAppointmentDurations);
-    const customerSatisfaction = useQuery(api.metrics.getCustomerSatisfaction);
-    const staffProductivity = useQuery(api.metrics.getStaffProductivity);
-
-    if (appointmentDurations === undefined || customerSatisfaction === undefined || staffProductivity === undefined) {
-        return <div>Loading performance metrics...</div>;
-    }
-
-    if (appointmentDurations === null || customerSatisfaction === null || staffProductivity === null) {
-=======
     const { user } = useUser();
     const tenantId = user?.id;
 
@@ -80,7 +58,6 @@ export function PerformanceMetrics() {
     }
 
     if (hasError) {
->>>>>>> development
         return <div>Error loading performance metrics. Please try again.</div>;
     }
 
@@ -106,10 +83,7 @@ export function PerformanceMetrics() {
                 backgroundColor: 'rgba(255, 206, 86, 0.2)',
                 borderColor: 'rgb(255, 206, 86)',
                 borderWidth: 1,
-<<<<<<< HEAD
-=======
                 tension: 0.1,
->>>>>>> development
             },
         ],
     };
@@ -133,8 +107,6 @@ export function PerformanceMetrics() {
             legend: {
                 position: 'top' as const,
             },
-<<<<<<< HEAD
-=======
             tooltip: {
                 mode: 'index' as const,
                 intersect: false,
@@ -144,7 +116,6 @@ export function PerformanceMetrics() {
             y: {
                 beginAtZero: true,
             },
->>>>>>> development
         },
     };
 
@@ -163,11 +134,7 @@ export function PerformanceMetrics() {
                     <CardTitle>Customer Satisfaction</CardTitle>
                 </CardHeader>
                 <CardContent>
-<<<<<<< HEAD
-                    <Bar options={options} data={customerSatisfactionData} />
-=======
                     <Line options={options} data={customerSatisfactionData} />
->>>>>>> development
                 </CardContent>
             </Card>
             <Card>

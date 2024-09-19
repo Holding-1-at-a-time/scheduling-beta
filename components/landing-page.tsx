@@ -1,16 +1,15 @@
 // components/landing-page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { Calendar, Clock, Users, Lock, BarChart, MessageSquare, Zap, RefreshCw, Layers, Shield, Check, ChevronRight, Star } from 'lucide-react'
+import { Calendar, Clock, Users, BarChart, MessageSquare, RefreshCw,  Shield, Check, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { toast } from "@/components/ui/use-toast"
@@ -73,18 +72,24 @@ const formSchema = z.object({
   terms: z.boolean().refine(value => value === true, {
     message: "You must agree to the terms and conditions.",
   }),
-})
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function LandingPageComponent() {
-  const [activeFeature, setActiveFeature] = useState('scheduling')
-  const [isAnnualBilling, setIsAnnualBilling] = useState(false)
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
+  const [activeFeature, setActiveFeature] = useState<string>('scheduling');
+  const [isAnnualBilling, setIsAnnualBilling] = useState<boolean>(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState<boolean>(false);
+  const targetRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start start", "end start"]
+  });
 
-  const { scrollYProgress } = useScroll()
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -95,17 +100,40 @@ export function LandingPageComponent() {
       message: "",
       terms: false,
     },
-  })
+  });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would typically send this data to your backend
-    console.log(values)
-    toast({
-      title: "Submission Received",
-      description: "Thank you for your interest! We'll be in touch soon.",
-    })
-    setIsSignUpOpen(false)
-  }
+  const saveSignUpData = useMutation(api.saveSignUpData);
+
+  const saveToConvex = async (data: FormData): Promise<string> => {
+    try {
+      console.log('Saving to Convex:', data);
+      const result = await saveSignUpData(data);
+      if (!result) {
+        throw new Error('Failed to save data');
+      }
+      return result;
+    } catch (error) {
+      console.error('Error saving to Convex:', error);
+      throw error;
+    }
+  };
+
+  const onSubmit = async (values: FormData) => {
+    try {
+      await saveToConvex(values);
+      toast({
+        title: "Submission Received",
+        description: "Thank you for your interest! We'll be in touch soon.",
+      });
+      setIsSignUpOpen(false);
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: "There was an issue saving your data. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
@@ -328,19 +356,26 @@ export function LandingPageComponent() {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="bg-gray-700 text-white border-gray-600" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Information (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="Tell us about your current challenges or what you're looking for in a scheduling solution."
+                          className="bg-gray-700 text-white border-gray-600"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-gray-400">
+                        Your feedback helps us tailor DetailSync to your needs.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               <FormField
                 control={form.control}
                 name="email"
