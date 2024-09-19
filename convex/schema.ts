@@ -1,3 +1,4 @@
+import { IntegrationsConfig } from '@/components/settings/integrations-config';
 // convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
@@ -282,6 +283,22 @@ export default defineSchema({
         .index("by_business", ["business"])
         .index("by_size", ["size"])
         .index("by_interests", ["interests"]),
+
+    integrations: defineTable({
+        _id: v.id('integrations'),
+        tenantId: v.id('tenants'),
+        integrationName: v.string(),
+        integrationDescription: v.string(),
+        integrationId: v.id('integrations'),
+        integrationConfig: v.array(v.object({
+            tenantId: v.id('tenants'),
+            name: v.string(),
+            description: v.string(),
+            isConnected: v.boolean(),
+        })),
+    })
+        .index("by_tenant", ["tenantId"])
+        .index("by_name", ["integrationName"]),
 
     vehiclesEmbeddings: defineTable({
         tenantId: v.id('tenants'),
