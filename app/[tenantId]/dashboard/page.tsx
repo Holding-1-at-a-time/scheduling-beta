@@ -1,6 +1,6 @@
 import AnalyticsOverview from '@/components/Analytics-Overview'
-import { AdminDashboard } from '@/components/Dashboard/Admin-Dashboard'
-import { DashboardCard } from '@/components/Dashboard/Dashboard-Card'
+import { AdminDashboard } from '@/components/Admin-Dashboard'
+import { DashboardCard } from '@/components/Dashboard-Card'
 import { Header } from '@/components/Header'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import RevenueChart from '@/components/Revenue-Chart'

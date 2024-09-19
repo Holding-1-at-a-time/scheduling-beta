@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import Image from 'next/image'
 
 const features = [
   { id: 'scheduling', icon: Calendar, title: 'AI-Powered Scheduling', description: 'Optimize appointments with machine learning' },
@@ -128,7 +129,7 @@ export function LandingPageComponent() {
             style={{ opacity, scale }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#00AE98] to-blue-600 opacity-30" />
-            <img
+            <Image
               src="/placeholder.svg?height=1080&width=1920"
               alt="Background"
               className="w-full h-full object-cover object-center"
@@ -228,7 +229,7 @@ export function LandingPageComponent() {
               </div>
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00AE98] to-blue-500 rounded-lg transform rotate-3"></div>
-                <img
+                <Image
                   src="/placeholder.svg?height=400&width=600"
                   alt="Analytics Dashboard"
                   className="relative z-10 rounded-lg shadow-xl"

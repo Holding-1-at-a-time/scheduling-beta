@@ -7,8 +7,8 @@ import { SettingsIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { Suspense } from 'react';
 import ErrorBoundary from './ErrorBoundary';
-import AdvancedSettings from './Settings/Advanced-Settings';
-import IntegrationsConfig from './Settings/Integrations-Config';
+import AdvancedSettings from './Advanced-Settings';
+import IntegrationsConfig from './Integrations-Config';
 import LoadingSpinner from "./LoadingSpinner";
 
 export function Settings() {

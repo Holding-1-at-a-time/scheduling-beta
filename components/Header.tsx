@@ -9,7 +9,7 @@ import { MountainIcon, SunIcon, MoonIcon } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 
 export function Header() {
-  const { theme, setTheme } = useTheme()
+  const { setTheme } = useTheme()
 
   return (
     <header className="bg-primary text-primary-foreground py-4 px-6 flex items-center justify-between animated-3d">

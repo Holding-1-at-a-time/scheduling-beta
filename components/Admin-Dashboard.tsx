@@ -3,7 +3,7 @@
 
 import React from "react";
 import { Protect } from "@clerk/nextjs";
-import { DashboardCard } from "components/Dashboard/Dashboard-Card";
+import { DashboardCard } from "@/components/Dashboard-Card";
 
 interface AdminDashboardProps {
   data: {
