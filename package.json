@@ -44,7 +44,7 @@
     "scandit-web-datacapture-barcode": "^6.27.1",
     "scandit-web-datacapture-core": "^6.27.1",
     "scandit-web-datacapture-id": "^6.27.1",
-    "sharp": "0.33.5-rc.1",
+    "sharp": "0.33.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "10.0.0",
