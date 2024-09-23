@@ -102,14 +102,14 @@ importers:
         specifier: ^7.53.0
         version: 7.53.0(react@19.0.0-rc-f994737d14-20240522)
       scandit-web-datacapture-barcode:
-        specifier: ^6.27.1
-        version: 6.27.1(scandit-web-datacapture-core@6.27.1)
+        specifier: ^6.27.2
+        version: 6.27.2(scandit-web-datacapture-core@6.27.2)
       scandit-web-datacapture-core:
-        specifier: ^6.27.1
-        version: 6.27.1
+        specifier: ^6.27.2
+        version: 6.27.2
       scandit-web-datacapture-id:
-        specifier: ^6.27.1
-        version: 6.27.1(scandit-web-datacapture-core@6.27.1)
+        specifier: ^6.27.2
+        version: 6.27.2(scandit-web-datacapture-core@6.27.2)
       sharp:
         specifier: 0.33.5-rc.1
         version: 0.33.5-rc.1
@@ -3557,14 +3557,14 @@ packages:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
 
-  scandit-web-datacapture-barcode@6.27.1:
-    resolution: {integrity: sha512-KAM+4IYDINTohJBuN8I+ZPkRlgn3cCe0pUpaYidlZJHSZzUiJ3BtrF1uDk+UE4XA9SP8e1oyIq++KzIntRQsQA==}
+  scandit-web-datacapture-barcode@6.27.2:
+    resolution: {integrity: sha512-Zswbre2+j/f6cFOycyIB+c/uTYf8ysDLh70zYcSlTS61jpfacWpC/ajC0iVt/75ESJEtyxZew1VwdJDM78M9SQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
-      scandit-web-datacapture-core: 6.27.1
+      scandit-web-datacapture-core: 6.27.2
 
-  scandit-web-datacapture-core@6.27.1:
-    resolution: {integrity: sha512-FTQVobXyWt7MA4k8YiEc8wRj+Rfqu2S7BV+3vCgsMsInvqEvhgoFUm1/1opotbJv6DDHTrOSv2SPrDFYFtIBZw==}
+  scandit-web-datacapture-core@6.27.2:
+    resolution: {integrity: sha512-ctyOOFNGPeJ2+1O3XO3XSKrGcYAjinQe2ivtKwvFeTosAp2hw2CjsVyktppXkKlUtOoqo0/7UDb7vw+WPjzHuw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
       electron: '>= 28'
@@ -3572,11 +3572,11 @@ packages:
       electron:
         optional: true
 
-  scandit-web-datacapture-id@6.27.1:
-    resolution: {integrity: sha512-3solMCi+cMWDrc7hQY+aGG8OQVadoJKMuPayRvVOpZqwYg92PbllWl/Bh4yiHE2hrxbIK603TagW+RuC0XoXig==}
+  scandit-web-datacapture-id@6.27.2:
+    resolution: {integrity: sha512-zG3jkChbSHqPFBX1FJmmjsIepFa30VOge3nLI+uZG2vAOk75Pza4HhO2LYqixdJ9sWjKSyINbfDwFP+i5bSU0A==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
-      scandit-web-datacapture-core: 6.27.1
+      scandit-web-datacapture-core: 6.27.2
 
   scheduler@0.25.0-rc-f994737d14-20240522:
     resolution: {integrity: sha512-qS+xGFF7AljP2APO2iJe8zESNsK20k25MACz+WGOXPybUsRdi1ssvaoF93im2nSX2q/XT3wKkjdz6RQfbmaxdw==}
@@ -7875,12 +7875,12 @@ snapshots:
     dependencies:
       xmlchars: 2.2.0
 
-  scandit-web-datacapture-barcode@6.27.1(scandit-web-datacapture-core@6.27.1):
+  scandit-web-datacapture-barcode@6.27.2(scandit-web-datacapture-core@6.27.2):
     dependencies:
       '@types/emscripten': 1.39.13
-      scandit-web-datacapture-core: 6.27.1
+      scandit-web-datacapture-core: 6.27.2
 
-  scandit-web-datacapture-core@6.27.1:
+  scandit-web-datacapture-core@6.27.2:
     dependencies:
       '@types/howler': 2.2.11
       '@types/js-cookie': 2.2.7
@@ -7892,10 +7892,10 @@ snapshots:
       ua-parser-js: 1.0.39
       wasm-feature-detect: 1.8.0
 
-  scandit-web-datacapture-id@6.27.1(scandit-web-datacapture-core@6.27.1):
+  scandit-web-datacapture-id@6.27.2(scandit-web-datacapture-core@6.27.2):
     dependencies:
       '@types/emscripten': 1.39.13
-      scandit-web-datacapture-core: 6.27.1
+      scandit-web-datacapture-core: 6.27.2
 
   scheduler@0.25.0-rc-f994737d14-20240522: {}
 
